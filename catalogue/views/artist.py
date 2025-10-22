@@ -5,6 +5,7 @@ from catalogue.models import Artist
 from catalogue.forms import ArtistForm
 
 
+
 def index(request):
     artists = Artist.objects.all()
     title = 'Liste des artistes'
@@ -59,5 +60,21 @@ def edit(request, artist_id):
 
     return render(request, 'artist/edit.html', {
         'form': form,
+        'artist': artist,
+    })
+
+# ...
+
+def delete(request, artist_id):
+    artist = get_object_or_404(Artist, id=artist_id)
+
+    if request.method == "POST":
+        method = request.POST.get('_method', '').upper()
+
+        if method == 'DELETE':
+            artist.delete()
+            return redirect('catalogue:artist-index')
+
+    return render(request, 'artist/show.html', {
         'artist': artist,
     })

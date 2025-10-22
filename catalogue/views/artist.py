@@ -2,12 +2,14 @@ from django.shortcuts import render
 from django.http import Http404
 
 from catalogue.models import Artist
+from catalogue.forms import ArtistForm
 
 def index(request):
     artists = Artist.objects.all()
-    
+    title = 'Liste des artistes'
     return render(request, 'artist/index.html', {
         'artists': artists,
+        'title': title
     })
 
 def show(request, artist_id):
@@ -15,7 +17,33 @@ def show(request, artist_id):
         artist = Artist.objects.get(id=artist_id)
     except Artist.DoesNotExist:
         raise Http404('Artist inexistant')
-        
+    
+    title = 'Fiche d\'un artiste'
+    
     return render(request, 'artist/show.html', {
+        'artist': artist,
+        'title': title
+    })
+
+def edit(request, artist_id):
+    # fetch the object related to passed id
+    artist = Artist.objects.get(id=artist_id)
+
+    # pass the object as instance in form
+    form = ArtistForm(request.POST or None, instance=artist)
+    
+    if request.method == 'POST':
+        method = request.POST.get('_method', '').upper()
+
+        if method == 'PUT':
+            # save the data from the form and redirect to detail_view
+            if form.is_valid():
+                form.save()
+                return render(request, 'artist/show.html', {
+                    'artist': artist,
+                })
+
+    return render(request, 'artist/edit.html', {
+        'form': form,
         'artist': artist,
     })

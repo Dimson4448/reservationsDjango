@@ -1,11 +1,18 @@
 <!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="utf-8">
-    <title>Projet réservations - {% block title %}Bienvenue{% endblock %}</title>
+<meta charset="utf-8">
+<title>Projet réservations - {% block title %}Bienvenue{% endblock %}</title>
 </head>
 <body>
-    <div class="container">
+<div class="container">
+    <header>
+        <div style="float:right">
+            <p>Vous n'êtes pas connecté.</p>
+            <p><a href="{% url 'login' %}">Se connecter</a></p>
+        </div>
+    </header>
+    <main>
         <div id="notification">
             {% if messages %}
             <ul class="messages">
@@ -16,6 +23,8 @@
             {% endif %}
         </div>
         {% block content %}{% endblock %}
-    </div>
+    </main>
+    <footer>&copy; Projet Réservations - ICC</footer>
+</div>
 </body>
 </html>

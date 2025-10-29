@@ -1,9 +1,9 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
 from catalogue.models import UserMeta
 from django.db import models
-
 
 class UserSignUpForm(UserCreationForm):
     class Language(models.TextChoices):
@@ -17,6 +17,8 @@ class UserSignUpForm(UserCreationForm):
     first_name = forms.CharField(max_length=60)
     last_name = forms.CharField(max_length=60)
     email = forms.EmailField()
+
+    # Ajout des champs de données personnelles supplémentaires
     langue = forms.ChoiceField(choices=Language)
 
     def __init__(self, *args, **kwargs):
@@ -51,12 +53,12 @@ class UserSignUpForm(UserCreationForm):
         memberGroup = Group.objects.get(name='MEMBER')
         memberGroup.user_set.add(user)
 
-        # Création et association de l'objet UserMeta
         if self.cleaned_data['langue']:
-            user_meta = UserMeta(
-                langue=self.cleaned_data['langue'],
-                user=user
-            )
+            user_meta = UserMeta(**{
+                'langue': self.cleaned_data['langue'],
+            })
+            # Mise à jour de la relation one-to-one
+            user_meta.user = user
             user_meta.save()
 
         return user

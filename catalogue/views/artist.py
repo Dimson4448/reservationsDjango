@@ -3,11 +3,14 @@ from django.http import Http404
 from django.contrib import messages
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import user_passes_test
 
 from catalogue.models import Artist
 from catalogue.forms import ArtistForm
 
-
+def admin_check(user):
+    return user.username.__eq__('bob') and user.email.__eq__("bob@sull.com")
 def index(request):
     artists = Artist.objects.all()
     title = 'Liste des artistes'
@@ -29,7 +32,7 @@ def show(request, artist_id):
         'title': title
     })
 
-
+@user_passes_test(admin_check)
 def create(request):
     if not request.user.is_authenticated or not request.user.has_perm('add_artist'):
         return redirect(f"{settings.LOGIN_URL}?next={request.path}")
@@ -48,6 +51,7 @@ def create(request):
     })
 
 @login_required
+@permission_required('catalog.can_delete', raise_exception=True)
 def edit(request, artist_id):
     # fetch the object related to passed id
     artist = Artist.objects.get(id=artist_id)

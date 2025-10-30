@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404
 from django.contrib import messages
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
 
 from catalogue.models import Artist
 from catalogue.forms import ArtistForm
@@ -29,6 +31,8 @@ def show(request, artist_id):
 
 
 def create(request):
+    if not request.user.is_authenticated or not request.user.has_perm('add_artist'):
+        return redirect(f"{settings.LOGIN_URL}?next={request.path}")
     form = ArtistForm(request.POST or None)
 
     if request.method == 'POST':
@@ -43,26 +47,23 @@ def create(request):
         'form': form,
     })
 
-
+@login_required
 def edit(request, artist_id):
-    # Récupération de l'objet à modifier
+    # fetch the object related to passed id
     artist = Artist.objects.get(id=artist_id)
 
-    # Passage de l'objet comme instance dans le formulaire
+    # pass the object as instance in form
     form = ArtistForm(request.POST or None, instance=artist)
-
-    if request.method == 'POST':
-        method = request.POST.get('_method', '').upper()
-
-        if method == 'PUT':
-            if form.is_valid():
-                form.save()
-                messages.success(request, "Artiste modifié avec succès.")
-                return render(request, "artist/show.html", {
-                    'artist': artist,
-                })
-            else:
-                messages.error(request, "Échec de la modification de l'artiste !")
+    
+    if request.method == 'POST':  # TODO http_override doesn't work
+        # save the data from the form and
+        # redirect to detail_view
+        if form.is_valid():
+            form.save()
+            
+            return render(request, "artist/show.html", {
+                'artist': artist,
+            })
 
     return render(request, 'artist/edit.html', {
         'form': form,

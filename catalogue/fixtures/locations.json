@@ -52,7 +52,9 @@
     "designation": "Espace Delvaux / La Vénerie",
     "address": "3 rue Gratès",
     "locality": [
-      "1170", "Watermael-Boistfort"],
+      "1170",
+      "Watermael-Boistfort"
+    ],
     "website": "https://www.lavenerie.be",
     "phone": "+32 (0)2/663.85.50"
   }

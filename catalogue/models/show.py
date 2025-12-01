@@ -1,15 +1,14 @@
 from django.db import models
-from .location import *
+from .location import Location
 
 
-# Create your models here.
 class Show(models.Model):
     slug = models.CharField(max_length=60, unique=True)
     title = models.CharField(max_length=255)
     description = models.TextField(max_length=255, null=True)
     poster_url = models.CharField(max_length=255, null=True)
     duration = models.PositiveSmallIntegerField(null=True)
-    created_in = models.DateTimeField(auto_now_add=True)
+    created_in = models.PositiveSmallIntegerField()
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, related_name='shows')
     bookable = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

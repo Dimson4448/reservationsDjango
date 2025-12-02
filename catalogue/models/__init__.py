@@ -6,3 +6,4 @@ from .price import *
 from .location import *
 from .reservation import *
 from .show import *
+from .representation import *

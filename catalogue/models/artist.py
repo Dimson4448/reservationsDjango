@@ -8,7 +8,6 @@ class ArtistManager(models.Manager):
 class Artist(models.Model):
     firstname = models.CharField(max_length=60)
     lastname = models.CharField(max_length=60)
-    type = models.ManyToManyField(Type, related_name='artists', db_table='artist_type')
 
     objects = ArtistManager()
 

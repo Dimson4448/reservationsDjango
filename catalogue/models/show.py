@@ -12,10 +12,21 @@ class Show(models.Model):
     poster_url = models.CharField(max_length=255, null=True)
     duration = models.PositiveSmallIntegerField(null=True)
     created_in = models.PositiveSmallIntegerField()
-    location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, related_name='shows')
+    location = models.ForeignKey(
+        Location,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='shows'
+    )
     bookable = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(null=True)
+
+    artist_types = models.ManyToManyField(
+        "ArtistType",
+        through="ArtistTypeShow",
+        related_name="shows",
+    )
 
     objects = ShowManager()
 

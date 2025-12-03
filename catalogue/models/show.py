@@ -1,5 +1,6 @@
 from django.db import models
 from .location import *
+from .price import Price  
 
 class ShowManager(models.Manager):
     def get_by_natural_key(self, slug, created_in):
@@ -22,9 +23,10 @@ class Show(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(null=True)
 
-    artist_types = models.ManyToManyField(
-        "ArtistType",
-        through="ArtistTypeShow",
+    # Nouvelle relation ManyToMany
+    prices = models.ManyToManyField(
+        Price,
+        through="PriceShow",
         related_name="shows",
     )
 

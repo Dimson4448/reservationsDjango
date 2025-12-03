@@ -7,8 +7,8 @@
 
     <h2>Liste des artistes</h2>
     <ul>
-    {% for artist in type.artists.all %}
-        <li>{{ artist.firstname }} {{ artist.lastname }}</li>
+    {% for at in type.t_artistTypes.all %}
+        <li>{{ at.artist.firstname }} {{ at.artist.lastname }}</li>
     {% endfor %}
     </ul>
 {% endblock %}

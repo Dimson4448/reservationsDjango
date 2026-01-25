@@ -1,0 +1,18 @@
+# Environnements virtuels
+venv/
+venv312/
+.virtualenvs/
+
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Fichiers locaux
+.env
+db.sqlite3
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store

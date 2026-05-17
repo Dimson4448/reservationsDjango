@@ -1,0 +1,20 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Reservation{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <p class="eyebrow">Reservation</p>
+    <h1>{{ representation.show.title }}</h1>
+    <p>{{ representation.schedule|date:"d/m/Y H:i" }}</p>
+
+    <form method="post" class="form-card">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="actions">
+            <button class="button button-primary" type="submit">Confirmer la reservation</button>
+            <a class="button" href="{% url 'catalogue:show-show' representation.show.id %}">Annuler</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

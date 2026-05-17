@@ -1,25 +1,39 @@
-{{% extends 'layouts/base.html' %}
+{% extends 'layouts/base.html' %}
 
 {% block title %}Fiche d'un artiste{% endblock %}
 
 {% block content %}
-    <h2>{{ artist.firstname }} {{ artist.lastname }}</h2>
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Artiste</p>
+        <h1>{{ artist.firstname }} {{ artist.lastname }}</h1>
+    </div>
+    <a class="button" href="{% url 'catalogue:artist-index' %}">Retour</a>
+</section>
 
-    <h2>Liste des types</h2>
-    <ul>
-    {% for at in artist.a_artistTypes.all %}
-        <li>{{ at.type.type }}</li>
-    {% endfor %}
+<section class="panel">
+    <h2>Types</h2>
+    <ul class="inline-list">
+        {% for at in artist.a_artistTypes.all %}
+            <li>{{ at.type.type }}</li>
+        {% empty %}
+            <li>Aucun type renseigne.</li>
+        {% endfor %}
     </ul>
+</section>
 
-    <div><a href="{% url 'catalogue:artist-edit' artist.id %}">Modifier</a></div>
-
-    <form method="post" action="{% url 'catalogue:artist-delete' artist.id %}"
-          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ?')">
-        {% csrf_token %}
-        <input type="hidden" name="_method" value="DELETE">
-        <button>Supprimer</button>
-    </form>
-
-    <nav><a href="{% url 'catalogue:artist-index' %}">Retour à l'index</a></nav>
+{% if perms.catalogue.change_artist or perms.catalogue.delete_artist %}
+<section class="actions">
+    {% if perms.catalogue.change_artist %}
+        <a class="button" href="{% url 'catalogue:artist-edit' artist.id %}">Modifier</a>
+    {% endif %}
+    {% if perms.catalogue.delete_artist %}
+        <form method="post" action="{% url 'catalogue:artist-delete' artist.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="_method" value="DELETE">
+            <button class="button danger" type="submit">Supprimer</button>
+        </form>
+    {% endif %}
+</section>
+{% endif %}
 {% endblock %}

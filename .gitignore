@@ -11,6 +11,8 @@ __pycache__/
 # Fichiers locaux
 .env
 db.sqlite3
+mysql
+PID_Groupe3/
 
 # IDE / OS
 .vscode/

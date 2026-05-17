@@ -4,13 +4,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Reservations de spectacles{% endblock %}</title>
+    <title>{% block title %}Ultimate SPT{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'catalogue/css/app.css' %}">
 </head>
 <body>
 <div class="app-shell">
     <header class="site-header">
-        <a class="brand" href="{% url 'home' %}">Reservations</a>
+        <a class="brand" href="{% url 'home' %}">Ultimate SPT</a>
         <nav class="main-nav" aria-label="Navigation principale">
             <a href="{% url 'home' %}">Accueil</a>
             <a href="{% url 'catalogue:show-index' %}">Spectacles</a>
@@ -45,7 +45,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="site-footer">Projet Reservations - ICC</footer>
+    <footer class="site-footer">Ultimate SPT - ICC</footer>
 </div>
 </body>
 </html>

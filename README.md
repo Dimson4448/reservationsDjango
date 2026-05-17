@@ -1,4 +1,4 @@
-# Reservations Django
+# Ultimate SPT
 
 Projet personnel de reservation de spectacles en ligne.
 

@@ -1,30 +1,68 @@
 {% extends 'layouts/base.html' %}
-
 {% load static %}
 
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-    <h1>{{ show.title }}</h1>
+<section class="show-detail">
+    <div class="poster">
+        {% if show.poster_url %}
+            <img src="{% static 'catalogue/images/' %}{{ show.poster_url }}" alt="{{ show.title }}">
+        {% else %}
+            <div class="poster-placeholder">{{ show.title|first }}</div>
+        {% endif %}
+    </div>
+    <div>
+        <p class="eyebrow">Spectacle</p>
+        <h1>{{ show.title }}</h1>
+        {% if show.description %}
+            <p>{{ show.description }}</p>
+        {% endif %}
+        <dl class="meta-list">
+            {% if show.location %}
+                <div><dt>Lieu</dt><dd>{{ show.location.designation }}</dd></div>
+            {% endif %}
+            <div><dt>Duree</dt><dd>{{ show.duration|default:"Non renseignee" }} minutes</dd></div>
+            <div><dt>Creation</dt><dd>{{ show.created_in }}</dd></div>
+        </dl>
+    </div>
+</section>
 
-    {% if show.poster_url %}
-        <p><img src="{% static 'catalogue/images/' %}{{ show.poster_url }}" alt="{{ show.title }}" width="200"></p>
-    {% else %}
-        <canvas width="200" height="100" style="border:1px solid #000000;"></canvas>
-    {% endif %}
-    
-    {% if show.location %}
-        <p><strong>Lieu de création :</strong> {{ show.location.designation }}</p>
-    {% endif %}
-        
-    <p><strong>Durée :</strong> {{ show.duration }} minutes</p>
-    <p><strong>Année de création :</strong> {{ show.created_in }}</p>
-        
-    {% if show.bookable %}
-        <p><em>Réservable</em></p>
-    {% else %}
-        <p><em>Non réservable</em></p>
-    {% endif %}
+<section class="panel">
+    <h2>Tarifs</h2>
+    <ul class="inline-list">
+        {% for price in show.prices.all %}
+            <li>{{ price.type }}: {{ price.price }} EUR</li>
+        {% empty %}
+            <li>Aucun tarif renseigne.</li>
+        {% endfor %}
+    </ul>
+</section>
 
-    <nav><a href="{% url 'catalogue:show-index' %}">Retour à l'index</a></nav>
+<section class="panel">
+    <h2>Representations</h2>
+    <div class="representation-list">
+        {% for representation in show.representations.all %}
+            <article class="representation-row">
+                <div>
+                    <strong>{{ representation.schedule|date:"d/m/Y H:i" }}</strong>
+                    {% if representation.location %}
+                        <span>{{ representation.location.designation }}</span>
+                    {% endif %}
+                </div>
+                {% if show.bookable %}
+                    <a class="button button-primary" href="{% url 'catalogue:reservation-create' representation.id %}">Reserver</a>
+                {% else %}
+                    <span class="status unavailable">Indisponible</span>
+                {% endif %}
+            </article>
+        {% empty %}
+            <p>Aucune representation programmee.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<nav class="actions">
+    <a class="button" href="{% url 'catalogue:show-index' %}">Retour aux spectacles</a>
+</nav>
 {% endblock %}

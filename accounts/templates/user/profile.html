@@ -3,46 +3,61 @@
 {% block title %}Profil{% endblock title %}
 
 {% block content %}
+<section class="page-header">
     <div>
-        <h2>{{ user.first_name }} {{ user.last_name }}</h2>
-        <p>Login : {{ user.username }}</p>
-        <p>Email : {{ user.email }}</p>
-        <p>Langue : {{ user_language }}</p>
+        <p class="eyebrow">Compte</p>
+        <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+        <p>{{ user.email }} - {{ user_language }}</p>
     </div>
+    <a class="button" href="{% url 'accounts:user-update' request.user.id %}">Modifier</a>
+</section>
 
-    <ul>
-        <li><a href="{% url 'accounts:user-update' request.user.id %}">Modifier</a></li>
-        <li><a href="{% url 'password_change' %}">Modifier le mot de passe</a></li>
-        <li>
-            <form method="post" action="{% url 'accounts:user-delete' request.user.id %}"
-                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.')">
-                {% csrf_token %}
-                <input type="submit" value="Supprimer son compte">
-            </form>
-        </li>
-    </ul>
-
-    <h3>Mes réservations</h3>
-
-    <table border="1">
-        <thead>
+<section class="panel">
+    <h2>Mes reservations</h2>
+    <div class="table-wrap">
+        <table>
+            <thead>
             <tr>
-                <th>Id</th>
+                <th>Reservation</th>
                 <th>Date</th>
+                <th>Spectacle</th>
+                <th>Places</th>
                 <th>Statut</th>
             </tr>
-        </thead>
-        <tbody>
-        {% for reservation in user.reservations.all %}
-            <tr>
-                <td>{{ reservation.id }}</td>
-                <td>{{ reservation.booking_date|date:"d/m/Y" }}</td>
-                <td>{{ reservation.status }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            {% for reservation in reservations %}
+                {% for item in reservation.representation_reservations.all %}
+                    <tr>
+                        <td>#{{ reservation.id }}</td>
+                        <td>{{ item.representation.schedule|date:"d/m/Y H:i" }}</td>
+                        <td>{{ item.representation.show.title }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ reservation.status }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td>#{{ reservation.id }}</td>
+                        <td colspan="3">Aucun detail</td>
+                        <td>{{ reservation.status }}</td>
+                    </tr>
+                {% endfor %}
+            {% empty %}
+                <tr>
+                    <td colspan="5">Aucune reservation pour le moment.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
 
-    <p><code>{{ user.reservations.all }}</code></p>
-
+<section class="actions">
+    <a class="button" href="{% url 'password_change' %}">Modifier le mot de passe</a>
+    <form method="post" action="{% url 'accounts:user-delete' request.user.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="_method" value="DELETE">
+        <button class="button danger" type="submit">Supprimer mon compte</button>
+    </form>
+</section>
 {% endblock content %}

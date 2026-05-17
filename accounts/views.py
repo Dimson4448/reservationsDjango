@@ -1,13 +1,15 @@
+from django.contrib import messages
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.shortcuts import redirect, render
-from django.contrib import messages
-from .forms import UserSignUpForm
-from .forms import UserUpdateForm
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from django.contrib.auth import logout
+
+from .forms import UserSignUpForm, UserUpdateForm
+from catalogue.models import UserMeta
+
 
 class UserUpdateView(UserPassesTestMixin, UpdateView):
     model = User
@@ -16,12 +18,16 @@ class UserUpdateView(UserPassesTestMixin, UpdateView):
     template_name = "user/update.html"
 
     def test_func(self):
-        pkInURL = self.kwargs['pk']
-        return self.request.user.is_authenticated and self.request.user.id==pkInURL or self.request.user.is_superuser
+        pk_in_url = self.kwargs["pk"]
+        return (
+            self.request.user.is_authenticated
+            and (self.request.user.id == pk_in_url or self.request.user.is_superuser)
+        )
 
     def handle_no_permission(self):
-        messages.error(self.request, "Vous n'avez pas l'autorisation d'accéder à cette page!")
-        return redirect('accounts:user-profile')
+        messages.error(self.request, "Vous n'avez pas l'autorisation d'acceder a cette page.")
+        return redirect("accounts:user-profile")
+
 
 class UserSignUpView(UserPassesTestMixin, CreateView):
     form_class = UserSignUpForm
@@ -30,38 +36,47 @@ class UserSignUpView(UserPassesTestMixin, CreateView):
 
     def test_func(self):
         return self.request.user.is_anonymous or self.request.user.is_superuser
-    
+
     def handle_no_permission(self):
-        messages.error(self.request, "Vous êtes déjà inscrit!")
-        return redirect('home')
+        messages.error(self.request, "Vous etes deja inscrit.")
+        return redirect("home")
+
 
 @login_required
 def profile(request):
     languages = {
-        "fr": "Français",
+        "fr": "Francais",
         "en": "English",
         "nl": "Nederlands",
     }
+    user_meta, _created = UserMeta.objects.get_or_create(
+        user=request.user,
+        defaults={"langue": "fr"},
+    )
+    reservations = (
+        request.user.reservations
+        .prefetch_related("representation_reservations__representation__show")
+        .order_by("-booking_date")
+    )
 
-    return render(request, 'user/profile.html', {
-        "user_language": languages[request.user.usermeta.langue],
+    return render(request, "user/profile.html", {
+        "user_language": languages.get(user_meta.langue, user_meta.langue),
+        "reservations": reservations,
     })
+
+
+@login_required
 def delete(request, pk):
-    if request.method == 'POST':
-        method = request.POST.get('_method', '').upper()
+    if request.method != "POST" or request.POST.get("_method", "").upper() != "DELETE":
+        messages.error(request, "Suppression interdite.")
+        return redirect("accounts:user-profile")
 
-        if method == 'DELETE':
-            if request.user and request.user.id == pk:
-                user = User.objects.get(id=request.user.id)
-                user.delete()
+    user = get_object_or_404(User, id=pk)
+    if request.user.id != user.id and not request.user.is_superuser:
+        messages.error(request, "Suppression d'un autre compte interdite.")
+        return redirect("accounts:user-profile")
 
-                messages.success(request, "Utilisateur supprimé avec succès.")
-                logout(request)
-            else:
-                messages.error(request, "Suppression d'un autre compte interdite!")
-            
-            return redirect('home')
-
-    messages.error(request, "Suppression interdite (méthode incorrecte)!")
-    return redirect('home')
-
+    user.delete()
+    logout(request)
+    messages.success(request, "Utilisateur supprime avec succes.")
+    return redirect("home")

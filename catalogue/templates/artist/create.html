@@ -3,16 +3,15 @@
 {% block title %}Ajouter un artiste{% endblock %}
 
 {% block content %}
-    <h2>Ajouter un artiste</h2>
-
-    <form action="{% url 'catalogue:artist-create' %}" method="post">
+<section class="form-page">
+    <h1>Ajouter un artiste</h1>
+    <form action="{% url 'catalogue:artist-create' %}" method="post" class="form-card">
         {% csrf_token %}
-
-        {{ form }}
-
-        <button type="submit">Ajouter</button>
-        <a href="{% url 'catalogue:artist-index' %}">Annuler</a>
+        {{ form.as_p }}
+        <div class="actions">
+            <button class="button button-primary" type="submit">Ajouter</button>
+            <a class="button" href="{% url 'catalogue:artist-index' %}">Annuler</a>
+        </div>
     </form>
-
-    <nav><a href="{% url 'catalogue:artist-index' %}">Retour à l'index</a></nav>
+</section>
 {% endblock %}

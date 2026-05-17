@@ -3,15 +3,33 @@
 {% block title %}Liste des spectacles{% endblock %}
 
 {% block content %}
-    <h1>{{ title }}</h1>
-    <ul>
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Catalogue</p>
+        <h1>{{ title }}</h1>
+    </div>
+</section>
+
+<section class="show-grid">
     {% for show in shows %}
-        <li>
-            <a href="{% url 'catalogue:show-show' show.id %}">{{ show.title }}</a>
-            {% if not show.bookable %}
-                <em>Réservation indisponible</em>
-            {% endif %}
-        </li>
+        <article class="show-card">
+            <div>
+                <h2><a href="{% url 'catalogue:show-show' show.id %}">{{ show.title }}</a></h2>
+                {% if show.location %}
+                    <p>{{ show.location.designation }}</p>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                {% if show.bookable %}
+                    <span class="status available">Reservable</span>
+                {% else %}
+                    <span class="status unavailable">Indisponible</span>
+                {% endif %}
+                <a class="button" href="{% url 'catalogue:show-show' show.id %}">Details</a>
+            </div>
+        </article>
+    {% empty %}
+        <p>Aucun spectacle disponible.</p>
     {% endfor %}
-    </ul>
+</section>
 {% endblock %}

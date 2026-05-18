@@ -48,6 +48,13 @@ Pour restaurer la base MySQL locale :
 mysql --host=127.0.0.1 --port=3307 --user=root reservations < database_dumps\reservations_2026-05-18.sql
 ```
 
+## Deploiement
+
+La configuration sensible est lue depuis un fichier `.env` non versionne.
+Un exemple est disponible dans `.env.example`.
+
+Les consignes de deploiement et de verification sont dans `DEPLOYMENT.md`.
+
 ## Endpoints utiles
 
 - `GET /` : accueil

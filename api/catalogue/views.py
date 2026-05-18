@@ -9,6 +9,8 @@ from .serializers import (
     RepresentationSerializer,
     ReservationCreateSerializer,
     ReservationSerializer,
+    ReviewCreateSerializer,
+    ReviewSerializer,
     ShowSerializer,
 )
 from .permissions import IsAuthenticatedOrReadOnly
@@ -97,3 +99,17 @@ class ReservationCancelView(APIView):
         reservation.status = Reservation.Status.CANCELED
         reservation.save(update_fields=["status"])
         return Response(ReservationSerializer(reservation).data)
+
+
+class ReviewCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, show_id):
+        show = generics.get_object_or_404(Show, pk=show_id)
+        serializer = ReviewCreateSerializer(
+            data=request.data,
+            context={"request": request, "show": show},
+        )
+        serializer.is_valid(raise_exception=True)
+        review = serializer.save()
+        return Response(ReviewSerializer(review).data, status=status.HTTP_201_CREATED)

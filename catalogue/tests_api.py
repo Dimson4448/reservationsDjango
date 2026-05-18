@@ -13,6 +13,7 @@ from catalogue.models import (
     PriceShow,
     Representation,
     Reservation,
+    Review,
     Show,
 )
 
@@ -69,11 +70,28 @@ class CatalogueAPITests(APITestCase):
         )
 
     def test_show_list_is_public(self):
+        Review.objects.create(
+            user=self.user,
+            show=self.show,
+            stars=5,
+            review="Avis public",
+            validated=True,
+        )
+        Review.objects.create(
+            user=self.user,
+            show=self.show,
+            stars=2,
+            review="Avis cache",
+            validated=False,
+        )
+
         response = self.client.get("/catalogue/api/shows/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data[0]["title"], "API Show")
         self.assertEqual(response.data[0]["prices"][0]["type"], "API Standard")
+        self.assertEqual(response.data[0]["reviews"][0]["review"], "Avis public")
+        self.assertEqual(len(response.data[0]["reviews"]), 1)
 
     def test_representation_list_is_public(self):
         response = self.client.get("/catalogue/api/representations/")
@@ -115,3 +133,20 @@ class CatalogueAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["status"], Reservation.Status.CANCELED)
+
+    def test_authenticated_user_can_submit_api_review(self):
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(
+            f"/catalogue/api/shows/{self.show.id}/reviews/",
+            {
+                "stars": 4,
+                "review": "Avis API",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["review"], "Avis API")
+        review = Review.objects.get(review="Avis API")
+        self.assertFalse(review.validated)

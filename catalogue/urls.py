@@ -9,6 +9,7 @@ from api.catalogue.views import (
     RepresentationListView,
     ReservationCancelView,
     ReservationListCreateView,
+    ReviewCreateView,
     ShowDetailView,
     ShowListView,
 )
@@ -46,6 +47,7 @@ urlpatterns = [
     path('api/representations/', RepresentationListView.as_view(), name='api-representation-list'),
     path('api/reservations/', ReservationListCreateView.as_view(), name='api-reservation-list'),
     path('api/reservations/<int:pk>/cancel/', ReservationCancelView.as_view(), name='api-reservation-cancel'),
+    path('api/shows/<int:show_id>/reviews/', ReviewCreateView.as_view(), name='api-review-create'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

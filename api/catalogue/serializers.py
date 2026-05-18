@@ -8,6 +8,7 @@ from catalogue.models import (
     Representation,
     RepresentationReservation,
     Reservation,
+    Review,
     Show,
 )
 
@@ -32,10 +33,23 @@ class RepresentationSerializer(serializers.ModelSerializer):
         fields = ["id", "schedule", "show", "show_title", "location", "location_name"]
 
 
+class ReviewSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source="user.username", read_only=True)
+
+    class Meta:
+        model = Review
+        fields = ["id", "username", "stars", "review", "created_at"]
+
+
 class ShowSerializer(serializers.ModelSerializer):
     location_name = serializers.CharField(source="location.designation", read_only=True)
     prices = PriceSerializer(many=True, read_only=True)
     representations = RepresentationSerializer(many=True, read_only=True)
+    reviews = serializers.SerializerMethodField()
+
+    def get_reviews(self, obj):
+        reviews = obj.reviews.filter(validated=True).select_related("user")
+        return ReviewSerializer(reviews, many=True).data
 
     class Meta:
         model = Show
@@ -52,7 +66,24 @@ class ShowSerializer(serializers.ModelSerializer):
             "location_name",
             "prices",
             "representations",
+            "reviews",
         ]
+
+
+class ReviewCreateSerializer(serializers.Serializer):
+    stars = serializers.IntegerField(min_value=1, max_value=5)
+    review = serializers.CharField(max_length=2000)
+
+    def create(self, validated_data):
+        request = self.context["request"]
+        show = self.context["show"]
+        return Review.objects.create(
+            user=request.user,
+            show=show,
+            stars=validated_data["stars"],
+            review=validated_data["review"],
+            validated=False,
+        )
 
 
 class ReservationItemSerializer(serializers.ModelSerializer):

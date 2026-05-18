@@ -141,6 +141,26 @@ class ReservationFlowTests(TestCase):
         reservation.refresh_from_db()
         self.assertEqual(reservation.status, Reservation.Status.CANCELED)
 
+    def test_user_can_cancel_own_reservation_with_ajax(self):
+        reservation = Reservation.objects.create(user=self.user)
+        RepresentationReservation.objects.create(
+            reservation=reservation,
+            representation=self.representation,
+            price=self.price.price,
+            quantity=1,
+        )
+        self.client.login(username="client", password="pass12345")
+
+        response = self.client.post(
+            reverse("catalogue:reservation-cancel", args=[reservation.id]),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], Reservation.Status.CANCELED)
+        reservation.refresh_from_db()
+        self.assertEqual(reservation.status, Reservation.Status.CANCELED)
+
 
 class ShowCatalogueTests(TestCase):
     def setUp(self):

@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.db.models import Min, Prefetch, Q
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
@@ -125,10 +126,24 @@ def cancel_reservation(request, reservation_id):
     )
 
     if reservation.status == Reservation.Status.CANCELED:
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({
+                "status": reservation.status,
+                "status_label": reservation.get_status_display(),
+                "message": "Cette reservation est deja annulee.",
+            })
         messages.info(request, "Cette reservation est deja annulee.")
         return redirect("accounts:user-profile")
 
     reservation.status = Reservation.Status.CANCELED
     reservation.save(update_fields=["status"])
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse({
+            "status": reservation.status,
+            "status_label": reservation.get_status_display(),
+            "message": "Reservation annulee.",
+        })
+
     messages.success(request, "Reservation annulee.")
     return redirect("accounts:user-profile")

@@ -1,9 +1,10 @@
 :root {
     color-scheme: light;
-    --belgian-black: #111111;
-    --belgian-yellow: #ffd90c;
-    --belgian-red: #ef3340;
-    --bg: linear-gradient(90deg, rgba(17, 17, 17, 0.08) 0 33.33%, rgba(255, 217, 12, 0.16) 33.33% 66.66%, rgba(239, 51, 64, 0.12) 66.66% 100%);
+    --belgian-bg: #efe6d2;
+    --belgian-surface: #f8f2e7;
+    --belgian-surface-strong: #ead8bb;
+    --belgian-ink: #1f1a16;
+    --bg: linear-gradient(135deg, #f8f2e7 0%, #efe6d2 48%, #d9c19e 100%);
     --surface: #ffffff;
     --surface-muted: #ece8df;
     --text: #202124;
@@ -48,15 +49,14 @@ a:hover {
     gap: 24px;
     align-items: center;
     padding: 18px 32px;
-    background: linear-gradient(90deg, var(--belgian-black) 0 33.33%, var(--belgian-yellow) 33.33% 66.66%, var(--belgian-red) 66.66% 100%);
+    background: linear-gradient(135deg, var(--belgian-surface) 0%, var(--belgian-surface-strong) 100%);
     border-bottom: 1px solid var(--line);
 }
 
 .brand {
-    color: #fff;
+    color: var(--belgian-ink);
     font-size: 22px;
     font-weight: 700;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
 }
 
 .main-nav,
@@ -90,10 +90,9 @@ a:hover {
 
 .site-footer {
     padding: 20px 32px;
-    color: #fff;
-    background: linear-gradient(90deg, var(--belgian-black) 0 33.33%, var(--belgian-yellow) 33.33% 66.66%, var(--belgian-red) 66.66% 100%);
+    color: var(--belgian-ink);
+    background: linear-gradient(135deg, var(--belgian-surface) 0%, var(--belgian-surface-strong) 100%);
     border-top: 1px solid var(--line);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
 }
 
 .home-page {
@@ -108,11 +107,11 @@ a:hover {
 }
 
 .home-page .site-header {
-    background: linear-gradient(90deg, var(--belgian-black) 0 33.33%, var(--belgian-yellow) 33.33% 66.66%, var(--belgian-red) 66.66% 100%);
+    background: linear-gradient(135deg, rgba(248, 242, 231, 0.94) 0%, rgba(234, 216, 187, 0.94) 100%);
 }
 
 .home-page .site-footer {
-    background: linear-gradient(90deg, var(--belgian-black) 0 33.33%, var(--belgian-yellow) 33.33% 66.66%, var(--belgian-red) 66.66% 100%);
+    background: linear-gradient(135deg, rgba(248, 242, 231, 0.94) 0%, rgba(234, 216, 187, 0.94) 100%);
 }
 
 .hero {

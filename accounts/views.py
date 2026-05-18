@@ -8,7 +8,7 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView
 
 from .forms import UserSignUpForm, UserUpdateForm
-from catalogue.models import UserMeta
+from catalogue.models import Reservation, UserMeta
 
 
 class UserUpdateView(UserPassesTestMixin, UpdateView):
@@ -44,6 +44,7 @@ class UserSignUpView(UserPassesTestMixin, CreateView):
 
 @login_required
 def profile(request):
+    status_filter = request.GET.get("status", "").strip()
     languages = {
         "fr": "Francais",
         "en": "English",
@@ -53,15 +54,25 @@ def profile(request):
         user=request.user,
         defaults={"langue": "fr"},
     )
-    reservations = (
+    reservations_base = (
         request.user.reservations
         .prefetch_related("representation_reservations__representation__show")
         .order_by("-booking_date")
     )
+    confirmed_count = reservations_base.filter(status=Reservation.Status.CONFIRMED).count()
+    canceled_count = reservations_base.filter(status=Reservation.Status.CANCELED).count()
+
+    reservations = reservations_base
+    if status_filter in Reservation.Status.values:
+        reservations = reservations.filter(status=status_filter)
 
     return render(request, "user/profile.html", {
         "user_language": languages.get(user_meta.langue, user_meta.langue),
         "reservations": reservations,
+        "status_filter": status_filter,
+        "confirmed_count": confirmed_count,
+        "canceled_count": canceled_count,
+        "total_reservations": confirmed_count + canceled_count,
     })
 
 

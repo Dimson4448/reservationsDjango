@@ -14,6 +14,34 @@
 
 <section class="panel">
     <h2>Mes reservations</h2>
+    <div class="summary-box profile-summary">
+        <div>
+            <span>Total</span>
+            <strong>{{ total_reservations }}</strong>
+        </div>
+        <div>
+            <span>Confirmees</span>
+            <strong>{{ confirmed_count }}</strong>
+        </div>
+        <div>
+            <span>Annulees</span>
+            <strong>{{ canceled_count }}</strong>
+        </div>
+    </div>
+    <form class="filter-bar compact" method="get">
+        <label>
+            <span>Statut</span>
+            <select name="status">
+                <option value="" {% if not status_filter %}selected{% endif %}>Toutes les reservations</option>
+                <option value="confirmed" {% if status_filter == "confirmed" %}selected{% endif %}>Confirmees</option>
+                <option value="canceled" {% if status_filter == "canceled" %}selected{% endif %}>Annulees</option>
+            </select>
+        </label>
+        <div class="filter-actions">
+            <button class="button button-primary" type="submit">Filtrer</button>
+            <a class="button" href="{% url 'accounts:user-profile' %}">Reinitialiser</a>
+        </div>
+    </form>
     <div class="table-wrap">
         <table>
             <thead>

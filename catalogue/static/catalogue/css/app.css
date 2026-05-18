@@ -450,6 +450,11 @@ input[type="submit"] {
     text-transform: uppercase;
 }
 
+.profile-summary {
+    margin-top: 0;
+    margin-bottom: 18px;
+}
+
 .form-errors,
 .errorlist {
     color: var(--danger);

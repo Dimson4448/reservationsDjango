@@ -1,6 +1,7 @@
 from datetime import timedelta
 from decimal import Decimal
 
+from django.contrib import admin
 from django.contrib.auth.models import User
 from django.template.loader import get_template
 from django.test import SimpleTestCase, TestCase
@@ -19,6 +20,7 @@ from catalogue.models import (
     Review,
     Show,
 )
+from catalogue.admin import ReservationAdmin, ReviewAdmin, ShowAdmin
 from catalogue.views import artist, show_
 
 
@@ -58,6 +60,13 @@ class CatalogueTemplateTests(SimpleTestCase):
         for template_name in templates:
             with self.subTest(template=template_name):
                 self.assertIsNotNone(get_template(template_name))
+
+
+class CatalogueAdminTests(SimpleTestCase):
+    def test_key_models_use_custom_admin_classes(self):
+        self.assertIsInstance(admin.site._registry[Show], ShowAdmin)
+        self.assertIsInstance(admin.site._registry[Reservation], ReservationAdmin)
+        self.assertIsInstance(admin.site._registry[Review], ReviewAdmin)
 
 
 class ReservationFlowTests(TestCase):

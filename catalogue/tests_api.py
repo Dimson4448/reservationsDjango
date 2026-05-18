@@ -116,6 +116,8 @@ class CatalogueAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["status"], Reservation.Status.CONFIRMED)
         self.assertEqual(response.data["items"][0]["quantity"], 3)
+        self.assertIn("/catalogue/reservation/", response.data["confirmation_url"])
+        self.assertTrue(response.data["confirmation_url"].endswith("/confirmation"))
 
     def test_authenticated_user_can_cancel_api_reservation(self):
         self.client.force_authenticate(user=self.user)

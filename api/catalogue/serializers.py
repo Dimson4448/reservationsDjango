@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.urls import reverse
 from rest_framework import serializers
 
 from catalogue.models import (
@@ -98,15 +99,31 @@ class ReservationItemSerializer(serializers.ModelSerializer):
 class ReservationSerializer(serializers.ModelSerializer):
     status_label = serializers.CharField(source="get_status_display", read_only=True)
     total_amount = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    confirmation_url = serializers.SerializerMethodField()
     items = ReservationItemSerializer(
         source="representation_reservations",
         many=True,
         read_only=True,
     )
 
+    def get_confirmation_url(self, obj):
+        request = self.context.get("request")
+        path = reverse("catalogue:reservation-confirmation", args=[obj.id])
+        if request is None:
+            return path
+        return request.build_absolute_uri(path)
+
     class Meta:
         model = Reservation
-        fields = ["id", "booking_date", "status", "status_label", "total_amount", "items"]
+        fields = [
+            "id",
+            "booking_date",
+            "status",
+            "status_label",
+            "total_amount",
+            "confirmation_url",
+            "items",
+        ]
 
 
 class ReservationCreateSerializer(serializers.Serializer):

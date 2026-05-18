@@ -88,6 +88,45 @@
     </div>
 </section>
 
+<section class="panel">
+    <h2>Avis des spectateurs</h2>
+    <div class="review-list">
+        {% for review in validated_reviews %}
+            <article class="review-card">
+                <div class="review-meta">
+                    <strong>{{ review.user.username }}</strong>
+                    <span>{{ review.stars }}/5</span>
+                </div>
+                <p>{{ review.review }}</p>
+            </article>
+        {% empty %}
+            <p>Aucun avis valide pour le moment.</p>
+        {% endfor %}
+    </div>
+
+    {% if request.user.is_authenticated %}
+        <form class="form-card review-form" method="post" action="{% url 'catalogue:show-review-create' show.id %}">
+            {% csrf_token %}
+            {% if review_form.non_field_errors %}
+                <div class="form-errors">{{ review_form.non_field_errors }}</div>
+            {% endif %}
+            <div class="field-group">
+                <label for="{{ review_form.stars.id_for_label }}">{{ review_form.stars.label }}</label>
+                {{ review_form.stars }}
+                {{ review_form.stars.errors }}
+            </div>
+            <div class="field-group">
+                <label for="{{ review_form.review.id_for_label }}">{{ review_form.review.label }}</label>
+                {{ review_form.review }}
+                {{ review_form.review.errors }}
+            </div>
+            <button class="button button-primary" type="submit">Envoyer l'avis</button>
+        </form>
+    {% else %}
+        <p><a href="{% url 'login' %}">Connectez-vous</a> pour laisser un avis.</p>
+    {% endif %}
+</section>
+
 <nav class="actions">
     <a class="button" href="{% url 'catalogue:show-index' %}">Retour aux spectacles</a>
 </nav>

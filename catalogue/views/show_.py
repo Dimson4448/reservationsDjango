@@ -5,7 +5,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from catalogue.forms import ReservationForm
+from catalogue.forms import ReservationForm, ReviewForm
 from catalogue.models import Representation, RepresentationReservation, Reservation, Show
 
 
@@ -49,6 +49,33 @@ def show(request, show_id):
     return render(request, "show/show.html", {
         "show": show,
         "title": "Fiche d'un spectacle",
+        "review_form": ReviewForm(),
+        "validated_reviews": show.reviews.filter(validated=True).select_related("user"),
+    })
+
+
+@login_required
+@require_POST
+def add_review(request, show_id):
+    show = get_object_or_404(Show, id=show_id)
+    form = ReviewForm(request.POST)
+
+    if form.is_valid():
+        review = form.save(commit=False)
+        review.user = request.user
+        review.show = show
+        review.validated = False
+        review.save()
+        messages.success(request, "Votre avis a ete envoye et attend validation.")
+        return redirect("catalogue:show-show", show_id=show.id)
+
+    messages.error(request, "Votre avis n'a pas pu etre enregistre.")
+    validated_reviews = show.reviews.filter(validated=True).select_related("user")
+    return render(request, "show/show.html", {
+        "show": show,
+        "title": "Fiche d'un spectacle",
+        "review_form": form,
+        "validated_reviews": validated_reviews,
     })
 
 

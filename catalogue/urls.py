@@ -33,6 +33,7 @@ urlpatterns = [
     path('location/<int:location_id>', views.location.show, name='location-show'),
     path('show/', views.show_.index, name='show-index'),
     path('show/<int:show_id>', views.show_.show, name='show-show'),
+    path('show/<int:show_id>/review', views.show_.add_review, name='show-review-create'),
     path('representation/<int:representation_id>/reserve', views.show_.reserve, name='reservation-create'),
     path('reservation/<int:reservation_id>/cancel', views.show_.cancel_reservation, name='reservation-cancel'),
     path('representation/', views.representation.index, name='representation-index'),

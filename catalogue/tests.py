@@ -16,6 +16,7 @@ from catalogue.models import (
     Representation,
     RepresentationReservation,
     Reservation,
+    Review,
     Show,
 )
 from catalogue.views import artist, show_
@@ -33,6 +34,10 @@ class CatalogueRoutingTests(SimpleTestCase):
     def test_reservation_cancel_route_is_registered(self):
         url = reverse("catalogue:reservation-cancel", args=[1])
         self.assertEqual(resolve(url).func, show_.cancel_reservation)
+
+    def test_review_create_route_is_registered(self):
+        url = reverse("catalogue:show-review-create", args=[1])
+        self.assertEqual(resolve(url).func, show_.add_review)
 
     def test_artist_routes_are_registered(self):
         self.assertEqual(resolve(reverse("catalogue:artist-index")).func, artist.index)
@@ -188,6 +193,45 @@ class ShowCatalogueTests(TestCase):
         self.assertContains(response, "19.50")
         self.assertContains(response, "Reservable")
         self.assertContains(response, self.location.designation)
+
+    def test_show_detail_displays_only_validated_reviews(self):
+        user = User.objects.create_user(username="viewer", password="pass12345")
+        Review.objects.create(
+            user=user,
+            show=self.bookable_show,
+            review="Tres bon spectacle",
+            stars=5,
+            validated=True,
+        )
+        Review.objects.create(
+            user=user,
+            show=self.bookable_show,
+            review="Avis en attente",
+            stars=3,
+            validated=False,
+        )
+
+        response = self.client.get(reverse("catalogue:show-show", args=[self.bookable_show.id]))
+
+        self.assertContains(response, "Tres bon spectacle")
+        self.assertNotContains(response, "Avis en attente")
+
+    def test_authenticated_user_can_submit_review(self):
+        user = User.objects.create_user(username="reviewer", password="pass12345")
+        self.client.login(username="reviewer", password="pass12345")
+
+        response = self.client.post(
+            reverse("catalogue:show-review-create", args=[self.bookable_show.id]),
+            {
+                "stars": 4,
+                "review": "Bonne experience",
+            },
+        )
+
+        self.assertRedirects(response, reverse("catalogue:show-show", args=[self.bookable_show.id]))
+        review = Review.objects.get(user=user, show=self.bookable_show)
+        self.assertEqual(review.stars, 4)
+        self.assertFalse(review.validated)
 
 
 class ArtistCatalogueTests(TestCase):

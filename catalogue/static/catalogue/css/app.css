@@ -124,6 +124,11 @@ a:hover {
     color: #fff;
 }
 
+.hero h1 {
+    color: #f8f2e7;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
 .hero h1,
 .page-header h1,
 .show-detail h1,
@@ -137,6 +142,8 @@ a:hover {
 .hero p {
     max-width: 620px;
     font-size: 18px;
+    color: #ead8bb;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
 .eyebrow {
@@ -149,7 +156,8 @@ a:hover {
 }
 
 .hero .eyebrow {
-    color: #9fe7dd;
+    color: #f2c46d;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
 .page-header {

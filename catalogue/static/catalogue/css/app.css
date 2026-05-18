@@ -227,6 +227,10 @@ input[type="submit"] {
     gap: 6px;
 }
 
+.filter-bar.compact {
+    grid-template-columns: minmax(220px, 1fr) auto;
+}
+
 .filter-bar span {
     color: var(--muted);
     font-size: 13px;

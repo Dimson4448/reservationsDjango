@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.urls import reverse, resolve
 
 from catalogue.models import (
+    Artist,
     Locality,
     Location,
     Price,
@@ -187,3 +188,21 @@ class ShowCatalogueTests(TestCase):
         self.assertContains(response, "19.50")
         self.assertContains(response, "Reservable")
         self.assertContains(response, self.location.designation)
+
+
+class ArtistCatalogueTests(TestCase):
+    def setUp(self):
+        self.artist = Artist.objects.create(firstname="Claude", lastname="Semal")
+        self.other_artist = Artist.objects.create(firstname="Daniel", lastname="Marcelin")
+
+    def test_artist_index_can_search_by_firstname(self):
+        response = self.client.get(reverse("catalogue:artist-index"), {"q": "claude"})
+
+        self.assertContains(response, self.artist.lastname)
+        self.assertNotContains(response, self.other_artist.lastname)
+
+    def test_artist_index_can_search_by_lastname(self):
+        response = self.client.get(reverse("catalogue:artist-index"), {"q": "marcelin"})
+
+        self.assertContains(response, self.other_artist.lastname)
+        self.assertNotContains(response, self.artist.lastname)

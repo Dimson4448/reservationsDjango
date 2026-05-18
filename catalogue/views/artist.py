@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from catalogue.forms import ArtistForm
@@ -7,10 +8,17 @@ from catalogue.models import Artist
 
 
 def index(request):
+    query = request.GET.get("q", "").strip()
     artists = Artist.objects.all().order_by("lastname", "firstname")
+    if query:
+        artists = artists.filter(
+            Q(firstname__icontains=query)
+            | Q(lastname__icontains=query)
+        )
     return render(request, "artist/index.html", {
         "artists": artists,
         "title": "Liste des artistes",
+        "query": query,
     })
 
 

@@ -96,7 +96,7 @@ a:hover {
     display: grid;
     align-items: center;
     padding: 56px;
-    background: linear-gradient(rgba(16, 35, 32, 0.68), rgba(16, 35, 32, 0.68)), url("../images/manneke.jpg") center / cover;
+    background: linear-gradient(rgba(16, 35, 32, 0.58), rgba(16, 35, 32, 0.58)), url("../images/ultimate-spt-hero.png") center / cover;
     color: #fff;
     border-radius: 8px;
 }

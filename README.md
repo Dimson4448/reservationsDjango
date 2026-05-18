@@ -43,6 +43,11 @@ Avec l'environnement local deja present sur ce poste, les commandes de verificat
 - `POST /reservation/<id>/cancel` : annulation d'une reservation
 - `GET|POST /api/artists/` : liste et creation d'artistes
 - `GET|PUT|PATCH|DELETE /api/artists/<id>/` : detail, modification et suppression d'un artiste
+- `GET /api/shows/` : liste des spectacles
+- `GET /api/shows/<id>/` : detail d'un spectacle
+- `GET /api/representations/` : liste des representations
+- `GET|POST /api/reservations/` : liste et creation des reservations de l'utilisateur connecte
+- `POST /api/reservations/<id>/cancel/` : annulation d'une reservation de l'utilisateur connecte
 - `POST /api/token/` : obtention d'un token JWT
 - `POST /api/token/refresh/` : renouvellement du token JWT
 

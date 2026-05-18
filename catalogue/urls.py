@@ -3,7 +3,15 @@
 from django.urls import path
 
 from . import views
-from api.catalogue.views import ArtistListCreateView, ArtistRetrieveUpdateDestroyView
+from api.catalogue.views import (
+    ArtistListCreateView,
+    ArtistRetrieveUpdateDestroyView,
+    RepresentationListView,
+    ReservationCancelView,
+    ReservationListCreateView,
+    ShowDetailView,
+    ShowListView,
+)
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
@@ -32,6 +40,11 @@ urlpatterns = [
 
     path('api/artists/', ArtistListCreateView.as_view(), name='artist-list'),
     path('api/artists/<int:pk>/', ArtistRetrieveUpdateDestroyView.as_view(), name='artist-detail'),
+    path('api/shows/', ShowListView.as_view(), name='api-show-list'),
+    path('api/shows/<int:pk>/', ShowDetailView.as_view(), name='api-show-detail'),
+    path('api/representations/', RepresentationListView.as_view(), name='api-representation-list'),
+    path('api/reservations/', ReservationListCreateView.as_view(), name='api-reservation-list'),
+    path('api/reservations/<int:pk>/cancel/', ReservationCancelView.as_view(), name='api-reservation-cancel'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

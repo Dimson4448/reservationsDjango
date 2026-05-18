@@ -345,6 +345,33 @@ input[type="submit"] {
     margin: 0;
 }
 
+.booking-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.booking-summary div {
+    display: grid;
+    gap: 4px;
+    padding: 14px;
+    border: 1px solid #c8ad82;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--belgian-surface) 0%, var(--belgian-surface-strong) 100%);
+}
+
+.booking-summary span {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.booking-summary strong {
+    color: var(--belgian-ink);
+}
+
 .panel {
     padding: 22px;
     margin-bottom: 20px;

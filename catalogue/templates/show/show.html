@@ -25,6 +25,30 @@
             <div><dt>Duree</dt><dd>{{ show.duration|default:"Non renseignee" }} minutes</dd></div>
             <div><dt>Creation</dt><dd>{{ show.created_in }}</dd></div>
         </dl>
+        <div class="booking-summary">
+            <div>
+                <span>Statut</span>
+                {% if show.bookable %}
+                    <strong>Reservable</strong>
+                {% else %}
+                    <strong>Indisponible</strong>
+                {% endif %}
+            </div>
+            <div>
+                <span>A partir de</span>
+                <strong>
+                    {% if show.min_price %}
+                        {{ show.min_price }} EUR
+                    {% else %}
+                        Non renseigne
+                    {% endif %}
+                </strong>
+            </div>
+            <div>
+                <span>Representations</span>
+                <strong>{{ show.representations.all|length }}</strong>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -48,6 +72,8 @@
                     <strong>{{ representation.schedule|date:"d/m/Y H:i" }}</strong>
                     {% if representation.location %}
                         <span>{{ representation.location.designation }}</span>
+                    {% elif show.location %}
+                        <span>{{ show.location.designation }}</span>
                     {% endif %}
                 </div>
                 {% if show.bookable %}

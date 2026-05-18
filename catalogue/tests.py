@@ -155,6 +155,18 @@ class ShowCatalogueTests(TestCase):
             location=self.location,
             bookable=False,
         )
+        self.price = Price.objects.create(
+            type="Catalogue Standard",
+            price=Decimal("19.50"),
+            description="Tarif catalogue",
+            end_date=timezone.localdate() + timedelta(days=30),
+        )
+        PriceShow.objects.create(show=self.bookable_show, price=self.price)
+        self.representation = Representation.objects.create(
+            show=self.bookable_show,
+            location=self.location,
+            schedule=timezone.now() + timedelta(days=10),
+        )
 
     def test_show_index_can_search_by_title(self):
         response = self.client.get(reverse("catalogue:show-index"), {"q": "comedie"})
@@ -167,3 +179,11 @@ class ShowCatalogueTests(TestCase):
 
         self.assertContains(response, self.bookable_show.title)
         self.assertNotContains(response, self.unavailable_show.title)
+
+    def test_show_detail_displays_booking_summary(self):
+        response = self.client.get(reverse("catalogue:show-show", args=[self.bookable_show.id]))
+
+        self.assertContains(response, "A partir de")
+        self.assertContains(response, "19.50")
+        self.assertContains(response, "Reservable")
+        self.assertContains(response, self.location.designation)

@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Min, Prefetch, Q
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
@@ -37,10 +37,13 @@ def index(request):
 def show(request, show_id):
     show = get_object_or_404(
         Show.objects.select_related("location").prefetch_related(
-            "representations",
+            Prefetch(
+                "representations",
+                queryset=Representation.objects.select_related("location").order_by("schedule"),
+            ),
             "prices",
             "reviews",
-        ),
+        ).annotate(min_price=Min("price_links__price__price")),
         id=show_id,
     )
     return render(request, "show/show.html", {

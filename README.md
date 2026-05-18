@@ -40,6 +40,7 @@ Avec l'environnement local deja present sur ce poste, les commandes de verificat
 - `GET /shows/` : liste des spectacles
 - `GET /shows/<id>` : detail d'un spectacle
 - `GET|POST /representation/<id>/reserve` : creation d'une reservation
+- `POST /reservation/<id>/cancel` : annulation d'une reservation
 - `GET|POST /api/artists/` : liste et creation d'artistes
 - `GET|PUT|PATCH|DELETE /api/artists/<id>/` : detail, modification et suppression d'un artiste
 - `POST /api/token/` : obtention d'un token JWT

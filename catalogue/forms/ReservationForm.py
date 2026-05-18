@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 
 from catalogue.models import PriceShow, Representation
 
@@ -21,6 +22,7 @@ class ReservationForm(forms.Form):
 
     def __init__(self, *args, representation=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.representation = representation
         if representation is not None:
             self.fields["representation"].queryset = Representation.objects.filter(pk=representation.pk)
             self.fields["representation"].initial = representation
@@ -33,3 +35,16 @@ class ReservationForm(forms.Form):
         self.fields["price_show"].label_from_instance = (
             lambda price_show: f"{price_show.price.type} - {price_show.price.price} EUR"
         )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        representation = cleaned_data.get("representation")
+        price_show = cleaned_data.get("price_show")
+
+        if self.representation and representation != self.representation:
+            raise ValidationError("Representation invalide.")
+
+        if self.representation and price_show and price_show.show_id != self.representation.show_id:
+            raise ValidationError("Ce tarif ne correspond pas au spectacle choisi.")
+
+        return cleaned_data

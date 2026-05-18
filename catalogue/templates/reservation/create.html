@@ -6,11 +6,39 @@
 <section class="form-page">
     <p class="eyebrow">Reservation</p>
     <h1>{{ representation.show.title }}</h1>
-    <p>{{ representation.schedule|date:"d/m/Y H:i" }}</p>
+    <div class="summary-box">
+        <div>
+            <span>Date</span>
+            <strong>{{ representation.schedule|date:"d/m/Y H:i" }}</strong>
+        </div>
+        <div>
+            <span>Lieu</span>
+            <strong>{{ representation.location|default:representation.show.location }}</strong>
+        </div>
+        <div>
+            <span>Statut</span>
+            <strong>Reservation immediate</strong>
+        </div>
+    </div>
 
     <form method="post" class="form-card">
         {% csrf_token %}
-        {{ form.as_p }}
+        {% if form.non_field_errors %}
+            <div class="form-errors">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="field-group">
+            {{ form.representation }}
+            <label for="{{ form.price_show.id_for_label }}">{{ form.price_show.label }}</label>
+            {{ form.price_show }}
+            {{ form.price_show.errors }}
+        </div>
+        <div class="field-group">
+            <label for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
+            {{ form.quantity }}
+            {{ form.quantity.errors }}
+        </div>
+
         <div class="actions">
             <button class="button button-primary" type="submit">Confirmer la reservation</button>
             <a class="button" href="{% url 'catalogue:show-show' representation.show.id %}">Annuler</a>

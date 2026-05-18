@@ -1,6 +1,8 @@
 from django.db import models
+
 from .representation import Representation
 from .reservation import Reservation
+
 
 class RepresentationReservation(models.Model):
     representation = models.ForeignKey(
@@ -19,7 +21,11 @@ class RepresentationReservation(models.Model):
     quantity = models.PositiveSmallIntegerField()
 
     def __str__(self):
-        return f"{self.reservation.user} - {self.representation} ({self.quantity} x {self.price} €)"
+        return f"{self.reservation.user} - {self.representation} ({self.quantity} x {self.price} EUR)"
+
+    @property
+    def line_total(self):
+        return self.price * self.quantity
 
     class Meta:
         db_table = "representation_reservation"

@@ -22,7 +22,9 @@
                 <th>Date</th>
                 <th>Spectacle</th>
                 <th>Places</th>
+                <th>Total</th>
                 <th>Statut</th>
+                <th>Action</th>
             </tr>
             </thead>
             <tbody>
@@ -33,18 +35,30 @@
                         <td>{{ item.representation.schedule|date:"d/m/Y H:i" }}</td>
                         <td>{{ item.representation.show.title }}</td>
                         <td>{{ item.quantity }}</td>
-                        <td>{{ reservation.status }}</td>
+                        <td>{{ item.line_total }} EUR</td>
+                        <td><span class="status status-{{ reservation.status }}">{{ reservation.get_status_display }}</span></td>
+                        <td>
+                            {% if reservation.is_cancelable %}
+                                <form method="post" action="{% url 'catalogue:reservation-cancel' reservation.id %}">
+                                    {% csrf_token %}
+                                    <button class="link-button danger" type="submit">Annuler</button>
+                                </form>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
                     </tr>
                 {% empty %}
                     <tr>
                         <td>#{{ reservation.id }}</td>
-                        <td colspan="3">Aucun detail</td>
-                        <td>{{ reservation.status }}</td>
+                        <td colspan="4">Aucun detail</td>
+                        <td><span class="status status-{{ reservation.status }}">{{ reservation.get_status_display }}</span></td>
+                        <td>-</td>
                     </tr>
                 {% endfor %}
             {% empty %}
                 <tr>
-                    <td colspan="5">Aucune reservation pour le moment.</td>
+                    <td colspan="7">Aucune reservation pour le moment.</td>
                 </tr>
             {% endfor %}
             </tbody>

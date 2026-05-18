@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
 from catalogue.forms import ReservationForm
 from catalogue.models import Representation, RepresentationReservation, Reservation, Show
@@ -46,7 +47,7 @@ def reserve(request, representation_id):
         with transaction.atomic():
             reservation = Reservation.objects.create(
                 user=request.user,
-                status="confirmed",
+                status=Reservation.Status.CONFIRMED,
             )
             RepresentationReservation.objects.create(
                 representation=representation,
@@ -62,3 +63,22 @@ def reserve(request, representation_id):
         "form": form,
         "representation": representation,
     })
+
+
+@login_required
+@require_POST
+def cancel_reservation(request, reservation_id):
+    reservation = get_object_or_404(
+        Reservation,
+        id=reservation_id,
+        user=request.user,
+    )
+
+    if reservation.status == Reservation.Status.CANCELED:
+        messages.info(request, "Cette reservation est deja annulee.")
+        return redirect("accounts:user-profile")
+
+    reservation.status = Reservation.Status.CANCELED
+    reservation.save(update_fields=["status"])
+    messages.success(request, "Reservation annulee.")
+    return redirect("accounts:user-profile")

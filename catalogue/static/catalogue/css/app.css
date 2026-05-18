@@ -217,6 +217,16 @@ input[type="submit"] {
     font-weight: 700;
 }
 
+.status-confirmed {
+    background: #d9f7ef;
+    color: #0f5f55;
+}
+
+.status-canceled {
+    background: #f5e1de;
+    color: var(--danger);
+}
+
 .available {
     background: #d9f7ef;
     color: #0f5f55;
@@ -314,9 +324,47 @@ input[type="submit"] {
     padding: 22px;
 }
 
-.form-card p {
+.form-card p,
+.field-group {
     display: grid;
     gap: 6px;
+}
+
+.field-group {
+    margin-bottom: 16px;
+}
+
+.summary-box {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 18px 0;
+}
+
+.summary-box div {
+    display: grid;
+    gap: 4px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+}
+
+.summary-box span {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.form-errors,
+.errorlist {
+    color: var(--danger);
+}
+
+.errorlist {
+    margin: 4px 0 0;
+    padding-left: 18px;
 }
 
 input,

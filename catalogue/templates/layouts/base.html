@@ -12,23 +12,23 @@
     <header class="site-header">
         <a class="brand" href="{% url 'home' %}">Ultimate SPT</a>
         <nav class="main-nav" aria-label="Navigation principale">
-            <a href="{% url 'home' %}">Accueil</a>
-            <a href="{% url 'catalogue:show-index' %}">Spectacles</a>
-            <a href="{% url 'catalogue:artist-index' %}">Artistes</a>
+            <a class="button button-primary" href="{% url 'home' %}">Accueil</a>
+            <a class="button button-primary" href="{% url 'catalogue:show-index' %}">Spectacles</a>
+            <a class="button button-primary" href="{% url 'catalogue:artist-index' %}">Artistes</a>
             {% if request.user.is_superuser %}
-                <a href="{% url 'admin:index' %}">Administration</a>
+                <a class="button button-primary" href="{% url 'admin:index' %}">Administration</a>
             {% endif %}
         </nav>
         <div class="account-nav">
             {% if request.user.is_authenticated %}
                 <span>Bonjour {{ request.user.username }}</span>
-                <a href="{% url 'accounts:user-profile' %}">Profil</a>
+                <a class="button button-primary" href="{% url 'accounts:user-profile' %}">Profil</a>
                 <form action="{% url 'logout' %}" method="post">
                     {% csrf_token %}
-                    <button type="submit" class="link-button">Deconnexion</button>
+                    <button type="submit" class="button button-primary">Deconnexion</button>
                 </form>
             {% else %}
-                <a href="{% url 'login' %}">Connexion</a>
+                <a class="button button-primary" href="{% url 'login' %}">Connexion</a>
                 <a class="button button-primary" href="{% url 'accounts:user-signup' %}">Inscription</a>
             {% endif %}
         </div>

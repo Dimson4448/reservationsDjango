@@ -34,6 +34,20 @@ Avec l'environnement local deja present sur ce poste, les commandes de verificat
 .\.virtualenvs\djangodev\Scripts\python.exe manage.py test --noinput
 ```
 
+## Dump SQL
+
+Un dump SQL de la base de developpement est disponible dans :
+
+```text
+database_dumps/reservations_2026-05-18.sql
+```
+
+Pour restaurer la base MySQL locale :
+
+```powershell
+mysql --host=127.0.0.1 --port=3307 --user=root reservations < database_dumps\reservations_2026-05-18.sql
+```
+
 ## Endpoints utiles
 
 - `GET /` : accueil

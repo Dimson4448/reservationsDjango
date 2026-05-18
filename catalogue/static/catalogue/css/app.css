@@ -1,6 +1,9 @@
 :root {
     color-scheme: light;
-    --bg: #f6f5f2;
+    --belgian-black: #111111;
+    --belgian-yellow: #ffd90c;
+    --belgian-red: #ef3340;
+    --bg: linear-gradient(90deg, rgba(17, 17, 17, 0.08) 0 33.33%, rgba(255, 217, 12, 0.16) 33.33% 66.66%, rgba(239, 51, 64, 0.12) 66.66% 100%);
     --surface: #ffffff;
     --surface-muted: #ece8df;
     --text: #202124;
@@ -45,14 +48,15 @@ a:hover {
     gap: 24px;
     align-items: center;
     padding: 18px 32px;
-    background: var(--surface);
+    background: linear-gradient(90deg, var(--belgian-black) 0 33.33%, var(--belgian-yellow) 33.33% 66.66%, var(--belgian-red) 66.66% 100%);
     border-bottom: 1px solid var(--line);
 }
 
 .brand {
-    color: var(--text);
+    color: #fff;
     font-size: 22px;
     font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
 }
 
 .main-nav,
@@ -86,9 +90,10 @@ a:hover {
 
 .site-footer {
     padding: 20px 32px;
-    color: var(--muted);
-    background: var(--surface);
+    color: #fff;
+    background: linear-gradient(90deg, var(--belgian-black) 0 33.33%, var(--belgian-yellow) 33.33% 66.66%, var(--belgian-red) 66.66% 100%);
     border-top: 1px solid var(--line);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
 }
 
 .home-page {
@@ -103,11 +108,11 @@ a:hover {
 }
 
 .home-page .site-header {
-    background: rgba(255, 255, 255, 0.94);
+    background: linear-gradient(90deg, var(--belgian-black) 0 33.33%, var(--belgian-yellow) 33.33% 66.66%, var(--belgian-red) 66.66% 100%);
 }
 
 .home-page .site-footer {
-    background: rgba(255, 255, 255, 0.94);
+    background: linear-gradient(90deg, var(--belgian-black) 0 33.33%, var(--belgian-yellow) 33.33% 66.66%, var(--belgian-red) 66.66% 100%);
 }
 
 .hero {

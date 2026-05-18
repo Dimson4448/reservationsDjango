@@ -577,6 +577,16 @@ th {
     border: 1px solid var(--line);
 }
 
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 22px;
+    color: var(--muted);
+    font-weight: 700;
+}
+
 @media (max-width: 780px) {
     .site-header,
     .show-detail,
@@ -644,7 +654,8 @@ th {
 
     .card-footer,
     .representation-row,
-    .filter-actions {
+    .filter-actions,
+    .pagination {
         align-items: stretch;
         flex-direction: column;
     }

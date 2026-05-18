@@ -1,8 +1,9 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from django.db.models import Min, Prefetch, Q
 from django.db import transaction
+from django.db.models import Min, Prefetch, Q
+from django.http import JsonResponse
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -14,7 +15,12 @@ from catalogue.models import Representation, RepresentationReservation, Reservat
 def index(request):
     query = request.GET.get("q", "").strip()
     availability = request.GET.get("availability", "").strip()
-    shows = Show.objects.select_related("location").prefetch_related("representations").all()
+    shows = (
+        Show.objects
+        .select_related("location")
+        .prefetch_related("representations")
+        .order_by("title", "id")
+    )
 
     if query:
         shows = shows.filter(
@@ -28,11 +34,16 @@ def index(request):
     elif availability == "unavailable":
         shows = shows.filter(bookable=False)
 
+    paginator = Paginator(shows, 6)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
     return render(request, "show/index.html", {
-        "shows": shows,
+        "shows": page_obj,
+        "page_obj": page_obj,
         "title": "Liste des spectacles",
         "query": query,
         "availability": availability,
+        "pagination_query": f"q={query}&availability={availability}",
     })
 
 

@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 
 from catalogue.forms import ArtistForm
@@ -15,10 +16,15 @@ def index(request):
             Q(firstname__icontains=query)
             | Q(lastname__icontains=query)
         )
+    paginator = Paginator(artists, 10)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
     return render(request, "artist/index.html", {
-        "artists": artists,
+        "artists": page_obj,
+        "page_obj": page_obj,
         "title": "Liste des artistes",
         "query": query,
+        "pagination_query": f"q={query}",
     })
 
 

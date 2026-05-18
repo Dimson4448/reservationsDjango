@@ -238,6 +238,22 @@ class ShowCatalogueTests(TestCase):
         self.assertContains(response, self.bookable_show.title)
         self.assertNotContains(response, self.unavailable_show.title)
 
+    def test_show_index_is_paginated(self):
+        for index in range(7):
+            Show.objects.create(
+                slug=f"extra-show-{index}",
+                title=f"Extra Show {index}",
+                description="Pagination",
+                duration=60,
+                created_in=2026,
+                location=self.location,
+                bookable=True,
+            )
+
+        response = self.client.get(reverse("catalogue:show-index"))
+
+        self.assertContains(response, "Page 1 / 2")
+
     def test_show_detail_displays_booking_summary(self):
         response = self.client.get(reverse("catalogue:show-show", args=[self.bookable_show.id]))
 
@@ -324,3 +340,11 @@ class ArtistCatalogueTests(TestCase):
 
         self.assertContains(response, self.other_artist.lastname)
         self.assertNotContains(response, self.artist.lastname)
+
+    def test_artist_index_is_paginated(self):
+        for index in range(11):
+            Artist.objects.create(firstname=f"Prenom{index}", lastname=f"Nom{index}")
+
+        response = self.client.get(reverse("catalogue:artist-index"))
+
+        self.assertContains(response, "Page 1 / 2")

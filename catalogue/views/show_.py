@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
@@ -9,10 +10,27 @@ from catalogue.models import Representation, RepresentationReservation, Reservat
 
 
 def index(request):
+    query = request.GET.get("q", "").strip()
+    availability = request.GET.get("availability", "").strip()
     shows = Show.objects.select_related("location").prefetch_related("representations").all()
+
+    if query:
+        shows = shows.filter(
+            Q(title__icontains=query)
+            | Q(description__icontains=query)
+            | Q(location__designation__icontains=query)
+        )
+
+    if availability == "bookable":
+        shows = shows.filter(bookable=True)
+    elif availability == "unavailable":
+        shows = shows.filter(bookable=False)
+
     return render(request, "show/index.html", {
         "shows": shows,
         "title": "Liste des spectacles",
+        "query": query,
+        "availability": availability,
     })
 
 

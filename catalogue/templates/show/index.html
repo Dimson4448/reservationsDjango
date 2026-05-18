@@ -10,6 +10,25 @@
     </div>
 </section>
 
+<form class="filter-bar" method="get">
+    <label>
+        <span>Recherche</span>
+        <input type="search" name="q" value="{{ query }}" placeholder="Titre, lieu, description">
+    </label>
+    <label>
+        <span>Disponibilite</span>
+        <select name="availability">
+            <option value="" {% if not availability %}selected{% endif %}>Tous les spectacles</option>
+            <option value="bookable" {% if availability == "bookable" %}selected{% endif %}>Reservables</option>
+            <option value="unavailable" {% if availability == "unavailable" %}selected{% endif %}>Indisponibles</option>
+        </select>
+    </label>
+    <div class="filter-actions">
+        <button class="button button-primary" type="submit">Filtrer</button>
+        <a class="button" href="{% url 'catalogue:show-index' %}">Reinitialiser</a>
+    </div>
+</form>
+
 <section class="show-grid">
     {% for show in shows %}
         <article class="show-card">

@@ -125,3 +125,45 @@ class ReservationFlowTests(TestCase):
         self.assertRedirects(response, reverse("accounts:user-profile"))
         reservation.refresh_from_db()
         self.assertEqual(reservation.status, Reservation.Status.CANCELED)
+
+
+class ShowCatalogueTests(TestCase):
+    def setUp(self):
+        self.locality = Locality.objects.create(postal_code="1000", locality="Bruxelles")
+        self.location = Location.objects.create(
+            slug="catalogue-theatre",
+            designation="Theatre Catalogue",
+            address="Rue Catalogue 1",
+            locality=self.locality,
+            website="https://catalogue.example.com",
+        )
+        self.bookable_show = Show.objects.create(
+            slug="bruxelles-comedie",
+            title="Bruxelles Comedie",
+            description="Spectacle comique belge",
+            duration=80,
+            created_in=2026,
+            location=self.location,
+            bookable=True,
+        )
+        self.unavailable_show = Show.objects.create(
+            slug="archive-drama",
+            title="Archive Drama",
+            description="Ancien spectacle",
+            duration=60,
+            created_in=2025,
+            location=self.location,
+            bookable=False,
+        )
+
+    def test_show_index_can_search_by_title(self):
+        response = self.client.get(reverse("catalogue:show-index"), {"q": "comedie"})
+
+        self.assertContains(response, self.bookable_show.title)
+        self.assertNotContains(response, self.unavailable_show.title)
+
+    def test_show_index_can_filter_bookable_shows(self):
+        response = self.client.get(reverse("catalogue:show-index"), {"availability": "bookable"})
+
+        self.assertContains(response, self.bookable_show.title)
+        self.assertNotContains(response, self.unavailable_show.title)

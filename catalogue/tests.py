@@ -203,6 +203,28 @@ class ShowCatalogueTests(TestCase):
         self.assertContains(response, "Reservable")
         self.assertContains(response, self.location.designation)
 
+    def test_past_representation_is_not_bookable(self):
+        past_representation = Representation.objects.create(
+            show=self.bookable_show,
+            location=self.location,
+            schedule=timezone.now() - timedelta(days=1),
+        )
+
+        self.assertFalse(past_representation.is_bookable)
+
+    def test_past_representation_reservation_page_returns_404(self):
+        past_representation = Representation.objects.create(
+            show=self.bookable_show,
+            location=self.location,
+            schedule=timezone.now() - timedelta(days=1),
+        )
+        user = User.objects.create_user(username="past-client", password="pass12345")
+        self.client.login(username="past-client", password="pass12345")
+
+        response = self.client.get(reverse("catalogue:reservation-create", args=[past_representation.id]))
+
+        self.assertEqual(response.status_code, 404)
+
     def test_show_detail_displays_only_validated_reviews(self):
         user = User.objects.create_user(username="viewer", password="pass12345")
         Review.objects.create(

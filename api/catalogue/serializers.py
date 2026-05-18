@@ -30,7 +30,7 @@ class RepresentationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Representation
-        fields = ["id", "schedule", "show", "show_title", "location", "location_name"]
+        fields = ["id", "schedule", "show", "show_title", "location", "location_name", "is_bookable"]
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -126,6 +126,9 @@ class ReservationCreateSerializer(serializers.Serializer):
 
         if not representation.show.bookable:
             raise serializers.ValidationError("Ce spectacle n'est pas reservable.")
+
+        if not representation.is_bookable:
+            raise serializers.ValidationError("Cette representation n'est plus reservable.")
 
         if price_show.show_id != representation.show_id:
             raise serializers.ValidationError("Ce tarif ne correspond pas au spectacle choisi.")

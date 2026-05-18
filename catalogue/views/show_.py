@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Min, Prefetch, Q
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from catalogue.forms import ReservationForm, ReviewForm
@@ -85,6 +86,7 @@ def reserve(request, representation_id):
         Representation.objects.select_related("show", "location"),
         id=representation_id,
         show__bookable=True,
+        schedule__gte=timezone.now(),
     )
     form = ReservationForm(request.POST or None, representation=representation)
 

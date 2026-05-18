@@ -98,6 +98,7 @@ class CatalogueAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data[0]["show_title"], "API Show")
+        self.assertTrue(response.data[0]["is_bookable"])
 
     def test_authenticated_user_can_create_api_reservation(self):
         self.client.force_authenticate(user=self.user)
@@ -150,3 +151,23 @@ class CatalogueAPITests(APITestCase):
         self.assertEqual(response.data["review"], "Avis API")
         review = Review.objects.get(review="Avis API")
         self.assertFalse(review.validated)
+
+    def test_api_cannot_reserve_past_representation(self):
+        past_representation = Representation.objects.create(
+            show=self.show,
+            location=self.location,
+            schedule=timezone.now() - timedelta(days=1),
+        )
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(
+            "/catalogue/api/reservations/",
+            {
+                "representation_id": past_representation.id,
+                "price_show_id": self.price_show.id,
+                "quantity": 1,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

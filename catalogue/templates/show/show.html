@@ -76,7 +76,7 @@
                         <span>{{ show.location.designation }}</span>
                     {% endif %}
                 </div>
-                {% if show.bookable %}
+                {% if representation.is_bookable %}
                     <a class="button button-primary" href="{% url 'catalogue:reservation-create' representation.id %}">Reserver</a>
                 {% else %}
                     <span class="status unavailable">Indisponible</span>

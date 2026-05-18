@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+
 from .show import Show
 from .location import Location
 from .reservation import Reservation
@@ -17,6 +19,10 @@ class Representation(models.Model):
 
     def __str__(self):
         return f"{self.show.title} @ {self.schedule}"
+
+    @property
+    def is_bookable(self):
+        return self.show.bookable and self.schedule >= timezone.now()
 
     class Meta:
         db_table = "representations"

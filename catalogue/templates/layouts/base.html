@@ -7,7 +7,7 @@
     <title>{% block title %}Ultimate SPT{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'catalogue/css/app.css' %}">
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
 <div class="app-shell">
     <header class="site-header">
         <a class="brand" href="{% url 'home' %}">Ultimate SPT</a>

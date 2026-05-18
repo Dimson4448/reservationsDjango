@@ -91,14 +91,33 @@ a:hover {
     border-top: 1px solid var(--line);
 }
 
+.home-page {
+    background:
+        linear-gradient(rgba(12, 24, 22, 0.58), rgba(12, 24, 22, 0.58)),
+        url("../images/ultimate-spt-hero.png") center / cover fixed;
+}
+
+.home-page .page {
+    width: 100%;
+    padding: 0;
+}
+
+.home-page .site-header {
+    background: rgba(255, 255, 255, 0.94);
+}
+
+.home-page .site-footer {
+    background: rgba(255, 255, 255, 0.94);
+}
+
 .hero {
-    min-height: 420px;
+    min-height: calc(100vh - 137px);
     display: grid;
     align-items: center;
+    width: min(1120px, calc(100% - 32px));
+    margin: 0 auto;
     padding: 56px;
-    background: linear-gradient(rgba(16, 35, 32, 0.58), rgba(16, 35, 32, 0.58)), url("../images/ultimate-spt-hero.png") center / cover;
     color: #fff;
-    border-radius: 8px;
 }
 
 .hero h1,
@@ -438,6 +457,10 @@ th {
     .hero {
         min-height: 360px;
         padding: 28px;
+    }
+
+    .home-page .hero {
+        min-height: calc(100vh - 210px);
     }
 
     .hero h1,

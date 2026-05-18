@@ -37,6 +37,10 @@ class CatalogueRoutingTests(SimpleTestCase):
         url = reverse("catalogue:reservation-cancel", args=[1])
         self.assertEqual(resolve(url).func, show_.cancel_reservation)
 
+    def test_reservation_confirmation_route_is_registered(self):
+        url = reverse("catalogue:reservation-confirmation", args=[1])
+        self.assertEqual(resolve(url).func, show_.reservation_confirmation)
+
     def test_review_create_route_is_registered(self):
         url = reverse("catalogue:show-review-create", args=[1])
         self.assertEqual(resolve(url).func, show_.add_review)
@@ -56,6 +60,7 @@ class CatalogueTemplateTests(SimpleTestCase):
             "show/index.html",
             "show/show.html",
             "reservation/create.html",
+            "reservation/confirmation.html",
         ]
         for template_name in templates:
             with self.subTest(template=template_name):
@@ -118,12 +123,30 @@ class ReservationFlowTests(TestCase):
             },
         )
 
-        self.assertRedirects(response, reverse("accounts:user-profile"))
         reservation = Reservation.objects.get(user=self.user)
+        self.assertRedirects(
+            response,
+            reverse("catalogue:reservation-confirmation", args=[reservation.id]),
+        )
         self.assertEqual(reservation.status, Reservation.Status.CONFIRMED)
         item = reservation.representation_reservations.get()
         self.assertEqual(item.quantity, 2)
         self.assertEqual(item.line_total, self.price.price * 2)
+
+    def test_authenticated_user_can_view_own_reservation_confirmation(self):
+        reservation = Reservation.objects.create(user=self.user)
+        RepresentationReservation.objects.create(
+            reservation=reservation,
+            representation=self.representation,
+            price=self.price.price,
+            quantity=1,
+        )
+        self.client.login(username="client", password="pass12345")
+
+        response = self.client.get(reverse("catalogue:reservation-confirmation", args=[reservation.id]))
+
+        self.assertContains(response, f"Reference #{reservation.id}")
+        self.assertContains(response, self.show.title)
 
     def test_user_can_cancel_own_reservation(self):
         reservation = Reservation.objects.create(user=self.user)

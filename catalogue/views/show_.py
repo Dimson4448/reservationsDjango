@@ -108,11 +108,26 @@ def reserve(request, representation_id):
             )
 
         messages.success(request, "Reservation confirmee.")
-        return redirect("accounts:user-profile")
+        return redirect("catalogue:reservation-confirmation", reservation_id=reservation.id)
 
     return render(request, "reservation/create.html", {
         "form": form,
         "representation": representation,
+    })
+
+
+@login_required
+def reservation_confirmation(request, reservation_id):
+    reservation = get_object_or_404(
+        Reservation.objects.prefetch_related(
+            "representation_reservations__representation__show",
+            "representation_reservations__representation__location",
+        ),
+        id=reservation_id,
+        user=request.user,
+    )
+    return render(request, "reservation/confirmation.html", {
+        "reservation": reservation,
     })
 
 

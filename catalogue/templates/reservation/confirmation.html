@@ -1,0 +1,62 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Reservation confirmee{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Reservation confirmee</p>
+        <h1>Merci, votre reservation est enregistree.</h1>
+        <p>Reference #{{ reservation.id }}</p>
+    </div>
+    <a class="button" href="{% url 'accounts:user-profile' %}">Voir mes reservations</a>
+</section>
+
+<section class="panel">
+    <h2>Recapitulatif</h2>
+    <div class="summary-box profile-summary">
+        <div>
+            <span>Statut</span>
+            <strong>{{ reservation.get_status_display }}</strong>
+        </div>
+        <div>
+            <span>Total</span>
+            <strong>{{ reservation.total_amount }} EUR</strong>
+        </div>
+        <div>
+            <span>Date de reservation</span>
+            <strong>{{ reservation.booking_date|date:"d/m/Y H:i" }}</strong>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>Spectacle</th>
+                <th>Date</th>
+                <th>Lieu</th>
+                <th>Places</th>
+                <th>Total</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in reservation.representation_reservations.all %}
+                <tr>
+                    <td>{{ item.representation.show.title }}</td>
+                    <td>{{ item.representation.schedule|date:"d/m/Y H:i" }}</td>
+                    <td>{{ item.representation.location|default:item.representation.show.location }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.line_total }} EUR</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<nav class="actions">
+    <a class="button button-primary" href="{% url 'catalogue:show-index' %}">Continuer a parcourir</a>
+    <a class="button" href="{% url 'accounts:user-profile' %}">Retour au profil</a>
+</nav>
+{% endblock %}

@@ -64,9 +64,17 @@ class CatalogueRoutingTests(SimpleTestCase):
 
 
 class CatalogueTemplateTests(SimpleTestCase):
+    def test_about_page_renders(self):
+        response = self.client.get(reverse("about"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Ultimate SPT")
+        self.assertContains(response, "Site Django de reservation")
+
     def test_main_templates_compile(self):
         templates = [
             "home.html",
+            "about.html",
             "layouts/base.html",
             "artist/index.html",
             "artist/show.html",

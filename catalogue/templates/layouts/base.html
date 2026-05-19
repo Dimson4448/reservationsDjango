@@ -15,6 +15,7 @@
             <a class="button button-primary" href="{% url 'home' %}">Accueil</a>
             <a class="button button-primary" href="{% url 'catalogue:show-index' %}">Spectacles</a>
             <a class="button button-primary" href="{% url 'catalogue:artist-index' %}">Artistes</a>
+            <a class="button button-primary" href="{% url 'about' %}">A propos</a>
             {% if request.user.is_staff %}
                 <a class="button button-primary" href="{% url 'catalogue:dashboard-index' %}">Tableau de bord</a>
             {% endif %}

@@ -267,6 +267,19 @@ input[type="submit"]:hover {
     gap: 18px;
 }
 
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+}
+
+.feature-list {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding-left: 20px;
+}
+
 .ticket-page {
     display: grid;
     gap: 18px;

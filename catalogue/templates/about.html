@@ -1,0 +1,46 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}A propos - Ultimate SPT{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Projet ecole</p>
+        <h1>Ultimate SPT</h1>
+        <p>Site Django de reservation de spectacles en ligne.</p>
+    </div>
+    <a class="button button-primary" href="{% url 'catalogue:show-index' %}">Voir les spectacles</a>
+</section>
+
+<section class="about-grid">
+    <article class="panel">
+        <h2>Objectif</h2>
+        <p>
+            Ultimate SPT permet de consulter des spectacles, des artistes, des lieux,
+            des tarifs et des representations, puis de reserver des places avec un compte utilisateur.
+        </p>
+    </article>
+
+    <article class="panel">
+        <h2>Fonctionnalites</h2>
+        <ul class="feature-list">
+            <li>Catalogue des spectacles avec recherche, filtres et pagination.</li>
+            <li>Fiches detaillees avec representations, tarifs et avis valides.</li>
+            <li>Reservation securisee avec confirmation, billet imprimable et annulation.</li>
+            <li>Profil utilisateur avec historique et filtre par statut.</li>
+            <li>API REST protegee par JWT pour les donnees principales.</li>
+            <li>Tableau de bord staff avec export CSV des reservations.</li>
+        </ul>
+    </article>
+
+    <article class="panel">
+        <h2>Technique</h2>
+        <ul class="feature-list">
+            <li>Backend Django avec modeles relationnels, formulaires et vues.</li>
+            <li>Templates Django et CSS responsive pour le frontend.</li>
+            <li>Base MySQL/MariaDB en local avec dump SQL disponible.</li>
+            <li>Tests automatises pour les routes, formulaires, API et parcours critiques.</li>
+        </ul>
+    </article>
+</section>
+{% endblock %}

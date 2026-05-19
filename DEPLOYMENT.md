@@ -37,6 +37,7 @@ python manage.py test --noinput
 ## Verification apres deploiement
 
 - ouvrir la page d'accueil ;
+- verifier `GET /health/` ;
 - ouvrir la liste des spectacles ;
 - tester une fiche spectacle ;
 - tester la connexion ;

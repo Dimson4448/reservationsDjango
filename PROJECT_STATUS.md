@@ -19,6 +19,7 @@ Derniere mise a jour : 19 mai 2026.
 - Export CSV des reservations.
 - Administration Django personnalisee et harmonisee avec le style du site.
 - Configuration de deploiement preparee, sans deploiement effectif.
+- Route `/health/` disponible pour une verification rapide de l'application.
 - Tests automatises pour les parcours principaux.
 
 ## Points a verifier manuellement

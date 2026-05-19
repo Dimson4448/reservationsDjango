@@ -63,6 +63,7 @@ Les consignes de deploiement et de verification sont dans `DEPLOYMENT.md`.
 
 - `GET /` : accueil
 - `GET /about/` : presentation du projet
+- `GET /health/` : verification rapide de l'etat de l'application
 - `GET /catalogue/show/` : liste des spectacles
 - `GET /catalogue/show/<id>` : detail d'un spectacle
 - `GET /catalogue/artist/` : liste des artistes

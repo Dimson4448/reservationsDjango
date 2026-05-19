@@ -42,7 +42,9 @@ class ShowAdmin(admin.ModelAdmin):
     list_display = ("title", "location", "bookable", "created_in", "representation_count")
     list_filter = ("bookable", "created_in", "location")
     search_fields = ("title", "description", "location__designation")
+    autocomplete_fields = ("location",)
     list_editable = ("bookable",)
+    list_select_related = ("location",)
     ordering = ("title",)
 
     @admin.display(description="Representations")
@@ -55,6 +57,8 @@ class RepresentationAdmin(admin.ModelAdmin):
     list_display = ("show", "schedule", "location")
     list_filter = ("show", "location")
     search_fields = ("show__title", "location__designation")
+    autocomplete_fields = ("show", "location")
+    list_select_related = ("show", "location")
     date_hierarchy = "schedule"
     ordering = ("schedule",)
 
@@ -62,6 +66,7 @@ class RepresentationAdmin(admin.ModelAdmin):
 class RepresentationReservationInline(admin.TabularInline):
     model = RepresentationReservation
     extra = 0
+    autocomplete_fields = ("representation",)
     readonly_fields = ("line_total",)
 
 
@@ -70,6 +75,9 @@ class ReservationAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "booking_date", "status", "reserved_places", "total_amount")
     list_filter = ("status", "booking_date")
     search_fields = ("user__username", "user__email")
+    autocomplete_fields = ("user",)
+    list_select_related = ("user",)
+    readonly_fields = ("booking_date", "total_amount")
     date_hierarchy = "booking_date"
     inlines = [RepresentationReservationInline]
     actions = ["mark_confirmed", "mark_canceled"]
@@ -92,6 +100,9 @@ class ReviewAdmin(admin.ModelAdmin):
     list_display = ("show", "user", "stars", "validated", "created_at")
     list_filter = ("validated", "stars", "created_at")
     search_fields = ("show__title", "user__username", "review")
+    autocomplete_fields = ("show", "user")
+    list_select_related = ("show", "user")
+    readonly_fields = ("created_at", "updated_at")
     date_hierarchy = "created_at"
     list_editable = ("validated",)
     actions = ["validate_reviews", "unvalidate_reviews"]
@@ -110,6 +121,8 @@ class LocationAdmin(admin.ModelAdmin):
     list_display = ("designation", "locality", "phone", "website")
     list_filter = ("locality",)
     search_fields = ("designation", "address", "locality__locality", "website", "phone")
+    autocomplete_fields = ("locality",)
+    list_select_related = ("locality",)
     ordering = ("designation",)
 
 
@@ -126,6 +139,8 @@ class PriceShowAdmin(admin.ModelAdmin):
     list_display = ("show", "price", "price_amount")
     list_filter = ("show", "price")
     search_fields = ("show__title", "price__type")
+    autocomplete_fields = ("show", "price")
+    list_select_related = ("show", "price")
     ordering = ("show__title", "price__price")
 
     @admin.display(description="Montant")

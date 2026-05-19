@@ -119,6 +119,17 @@ class CatalogueAdminTests(SimpleTestCase):
         self.assertIsInstance(admin.site._registry[Price], PriceAdmin)
         self.assertIsInstance(admin.site._registry[PriceShow], PriceShowAdmin)
 
+    def test_admin_relation_fields_are_searchable(self):
+        self.assertEqual(admin.site._registry[Show].autocomplete_fields, ("location",))
+        self.assertEqual(admin.site._registry[Representation].autocomplete_fields, ("show", "location"))
+        self.assertEqual(admin.site._registry[Reservation].autocomplete_fields, ("user",))
+        self.assertEqual(admin.site._registry[Review].autocomplete_fields, ("show", "user"))
+        self.assertEqual(admin.site._registry[PriceShow].autocomplete_fields, ("show", "price"))
+
+    def test_admin_readonly_fields_are_configured(self):
+        self.assertIn("total_amount", admin.site._registry[Reservation].readonly_fields)
+        self.assertIn("created_at", admin.site._registry[Review].readonly_fields)
+
     def test_admin_branding_is_configured(self):
         self.assertEqual(admin.site.site_header, "Ultimate SPT Administration")
         self.assertEqual(admin.site.index_title, "Pilotage des spectacles")

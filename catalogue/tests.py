@@ -218,6 +218,15 @@ class DashboardAccessTests(TestCase):
         self.assertContains(response, f"#{canceled.id}")
         self.assertNotContains(response, f"#{confirmed.id}")
 
+    def test_staff_reservations_dashboard_is_paginated(self):
+        for _index in range(11):
+            Reservation.objects.create(user=self.user)
+        self.client.login(username="staff", password="pass12345")
+
+        response = self.client.get(reverse("catalogue:dashboard-reservations"))
+
+        self.assertContains(response, "Page 1 / 2")
+
     def test_staff_user_can_update_reservation_status(self):
         reservation = Reservation.objects.create(user=self.user)
         self.client.login(username="staff", password="pass12345")
@@ -268,6 +277,30 @@ class DashboardAccessTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Avis a valider")
         self.assertContains(response, "Moderation Show")
+
+    def test_staff_pending_reviews_are_paginated(self):
+        show = Show.objects.create(
+            slug="moderation-pagination-show",
+            title="Moderation Pagination Show",
+            description="Pagination avis",
+            duration=60,
+            created_in=2026,
+            location=None,
+            bookable=True,
+        )
+        for index in range(11):
+            Review.objects.create(
+                user=self.user,
+                show=show,
+                review=f"Avis {index}",
+                stars=4,
+                validated=False,
+            )
+        self.client.login(username="staff", password="pass12345")
+
+        response = self.client.get(reverse("catalogue:dashboard-reviews"))
+
+        self.assertContains(response, "Page 1 / 2")
 
     def test_staff_user_can_validate_pending_review(self):
         show = Show.objects.create(

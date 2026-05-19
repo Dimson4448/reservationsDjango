@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import DecimalField, ExpressionWrapper, F, Sum
 from django.http import HttpResponse
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -59,8 +60,13 @@ def pending_reviews(request):
         .filter(validated=False)
         .order_by("-created_at", "-id")
     )
+    paginator = Paginator(reviews, 10)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
     return render(request, "dashboard/reviews.html", {
-        "reviews": reviews,
+        "reviews": page_obj,
+        "page_obj": page_obj,
+        "pagination_query": "",
     })
 
 
@@ -75,10 +81,15 @@ def reservations(request):
     if status_filter in Reservation.Status.values:
         reservations_query = reservations_query.filter(status=status_filter)
 
+    paginator = Paginator(reservations_query, 10)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
     return render(request, "dashboard/reservations.html", {
-        "reservations": reservations_query,
+        "reservations": page_obj,
+        "page_obj": page_obj,
         "status_filter": status_filter,
         "statuses": Reservation.Status,
+        "pagination_query": f"status={status_filter}",
     })
 
 

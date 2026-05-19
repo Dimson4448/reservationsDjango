@@ -21,7 +21,7 @@ from catalogue.models import (
     Show,
 )
 from catalogue.admin import ReservationAdmin, ReviewAdmin, ShowAdmin
-from catalogue.views import artist, show_
+from catalogue.views import artist, dashboard, show_
 
 
 class CatalogueRoutingTests(SimpleTestCase):
@@ -49,6 +49,9 @@ class CatalogueRoutingTests(SimpleTestCase):
         self.assertEqual(resolve(reverse("catalogue:artist-index")).func, artist.index)
         self.assertEqual(resolve(reverse("catalogue:artist-show", args=[1])).func, artist.show)
 
+    def test_dashboard_route_is_registered(self):
+        self.assertEqual(resolve(reverse("catalogue:dashboard-index")).func, dashboard.index)
+
 
 class CatalogueTemplateTests(SimpleTestCase):
     def test_main_templates_compile(self):
@@ -61,6 +64,7 @@ class CatalogueTemplateTests(SimpleTestCase):
             "show/show.html",
             "reservation/create.html",
             "reservation/confirmation.html",
+            "dashboard/index.html",
         ]
         for template_name in templates:
             with self.subTest(template=template_name):
@@ -72,6 +76,44 @@ class CatalogueAdminTests(SimpleTestCase):
         self.assertIsInstance(admin.site._registry[Show], ShowAdmin)
         self.assertIsInstance(admin.site._registry[Reservation], ReservationAdmin)
         self.assertIsInstance(admin.site._registry[Review], ReviewAdmin)
+
+
+class DashboardAccessTests(TestCase):
+    def setUp(self):
+        self.staff = User.objects.create_user(
+            username="staff",
+            email="staff@example.com",
+            password="pass12345",
+            is_staff=True,
+        )
+        self.user = User.objects.create_user(
+            username="client-dashboard",
+            email="client-dashboard@example.com",
+            password="pass12345",
+        )
+
+    def test_anonymous_user_is_redirected_from_dashboard(self):
+        response = self.client.get(reverse("catalogue:dashboard-index"))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/admin/login/", response["Location"])
+
+    def test_non_staff_user_is_redirected_from_dashboard(self):
+        self.client.login(username="client-dashboard", password="pass12345")
+
+        response = self.client.get(reverse("catalogue:dashboard-index"))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/admin/login/", response["Location"])
+
+    def test_staff_user_can_view_dashboard(self):
+        self.client.login(username="staff", password="pass12345")
+
+        response = self.client.get(reverse("catalogue:dashboard-index"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Tableau de bord")
+        self.assertContains(response, "Spectacles")
 
 
 class ReservationFlowTests(TestCase):

@@ -230,6 +230,43 @@ input[type="submit"]:hover {
     gap: 18px;
 }
 
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.dashboard-card {
+    display: grid;
+    gap: 8px;
+    min-height: 118px;
+    padding: 18px;
+    border: 1px solid #c8ad82;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--belgian-surface) 0%, var(--belgian-surface-strong) 100%);
+    box-shadow: var(--shadow);
+}
+
+.dashboard-card span {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.dashboard-card strong {
+    color: var(--belgian-ink);
+    font-size: 30px;
+    line-height: 1.1;
+}
+
+.dashboard-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 18px;
+}
+
 .button-primary:hover {
     border-color: var(--accent-strong);
     background: var(--accent-strong);

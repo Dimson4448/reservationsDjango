@@ -1,0 +1,84 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Tableau de bord - Ultimate SPT{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <h1>Tableau de bord</h1>
+        <p>Vue rapide des activites du site Ultimate SPT.</p>
+    </div>
+    <a class="button button-primary" href="{% url 'admin:index' %}">Administration</a>
+</section>
+
+<section class="dashboard-grid" aria-label="Statistiques">
+    {% for stat in stats %}
+        <article class="dashboard-card">
+            <span>{{ stat.label }}</span>
+            <strong>{{ stat.value }}</strong>
+        </article>
+    {% endfor %}
+</section>
+
+<section class="dashboard-columns">
+    <article class="panel">
+        <h2>Prochaines representations</h2>
+        {% if upcoming_representations %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Spectacle</th>
+                        <th>Lieu</th>
+                        <th>Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for representation in upcoming_representations %}
+                        <tr>
+                            <td>{{ representation.show.title }}</td>
+                            <td>{{ representation.location.designation }}</td>
+                            <td>{{ representation.schedule|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>Aucune representation a venir.</p>
+        {% endif %}
+    </article>
+
+    <article class="panel">
+        <h2>Dernieres reservations</h2>
+        {% if recent_reservations %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Statut</th>
+                        <th>Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for reservation in recent_reservations %}
+                        <tr>
+                            <td>{{ reservation.user.username }}</td>
+                            <td>
+                                <span class="status status-{{ reservation.status }}">
+                                    {{ reservation.get_status_display }}
+                                </span>
+                            </td>
+                            <td>{{ reservation.booking_date|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>Aucune reservation pour le moment.</p>
+        {% endif %}
+    </article>
+</section>
+{% endblock %}

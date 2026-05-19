@@ -19,6 +19,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 app_name = 'catalogue'
 
 urlpatterns = [
+    path('dashboard/', views.dashboard.index, name='dashboard-index'),
     path('artist/', views.artist.index, name='artist-index'),
     path('artist/<int:artist_id>', views.artist.show, name='artist-show'),
     path('artist/edit/<int:artist_id>', views.artist.edit, name='artist-edit'),

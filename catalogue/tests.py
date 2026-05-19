@@ -121,6 +121,14 @@ class CatalogueAdminTests(SimpleTestCase):
         self.assertEqual(admin.site.index_title, "Pilotage des spectacles")
         self.assertEqual(admin.site.site_title, "Ultimate SPT Admin")
 
+    def test_admin_template_contains_shortcuts(self):
+        template = get_template("admin/base_site.html")
+        rendered = template.render({})
+
+        self.assertIn("Tableau de bord", rendered)
+        self.assertIn("Reservations", rendered)
+        self.assertIn("Avis", rendered)
+
 
 class DashboardAccessTests(TestCase):
     def setUp(self):

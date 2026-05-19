@@ -1,0 +1,16 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'catalogue/css/admin.css' %}">
+{% endblock %}
+
+{% block nav-global %}
+<nav class="admin-shortcuts" aria-label="Raccourcis administration">
+    <a href="{% url 'home' %}">Site</a>
+    <a href="{% url 'catalogue:dashboard-index' %}">Tableau de bord</a>
+    <a href="{% url 'catalogue:dashboard-reservations' %}">Reservations</a>
+    <a href="{% url 'catalogue:dashboard-reviews' %}">Avis</a>
+</nav>
+{% endblock %}

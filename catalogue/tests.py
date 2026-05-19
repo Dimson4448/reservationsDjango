@@ -227,6 +227,69 @@ class ReservationFlowTests(TestCase):
         self.assertEqual(item.quantity, 2)
         self.assertEqual(item.line_total, self.price.price * 2)
 
+    def test_reservation_rejects_zero_quantity(self):
+        self.client.login(username="client", password="pass12345")
+
+        response = self.client.post(
+            reverse("catalogue:reservation-create", args=[self.representation.id]),
+            {
+                "representation": self.representation.id,
+                "price_show": self.price_show.id,
+                "quantity": 0,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Vous devez reserver au moins une place.")
+        self.assertFalse(Reservation.objects.filter(user=self.user).exists())
+
+    def test_reservation_rejects_quantity_above_limit(self):
+        self.client.login(username="client", password="pass12345")
+
+        response = self.client.post(
+            reverse("catalogue:reservation-create", args=[self.representation.id]),
+            {
+                "representation": self.representation.id,
+                "price_show": self.price_show.id,
+                "quantity": 11,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Vous ne pouvez pas reserver plus de 10 places en une commande.")
+        self.assertFalse(Reservation.objects.filter(user=self.user).exists())
+
+    def test_reservation_rejects_price_from_another_show(self):
+        other_show = Show.objects.create(
+            slug="autre-spectacle",
+            title="Autre Spectacle",
+            description="Autre description",
+            duration=75,
+            created_in=2026,
+            location=self.location,
+            bookable=True,
+        )
+        other_price = Price.objects.create(
+            type="Autre tarif",
+            price=Decimal("99.00"),
+            description="Tarif invalide pour cette representation",
+            end_date=timezone.localdate() + timedelta(days=30),
+        )
+        other_price_show = PriceShow.objects.create(show=other_show, price=other_price)
+        self.client.login(username="client", password="pass12345")
+
+        response = self.client.post(
+            reverse("catalogue:reservation-create", args=[self.representation.id]),
+            {
+                "representation": self.representation.id,
+                "price_show": other_price_show.id,
+                "quantity": 1,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Reservation.objects.filter(user=self.user).exists())
+
     def test_authenticated_user_can_view_own_reservation_confirmation(self):
         reservation = Reservation.objects.create(user=self.user)
         RepresentationReservation.objects.create(

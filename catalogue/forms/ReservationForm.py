@@ -18,6 +18,12 @@ class ReservationForm(forms.Form):
         min_value=1,
         max_value=10,
         initial=1,
+        help_text="Vous pouvez reserver entre 1 et 10 places par commande.",
+        error_messages={
+            "min_value": "Vous devez reserver au moins une place.",
+            "max_value": "Vous ne pouvez pas reserver plus de 10 places en une commande.",
+            "invalid": "Le nombre de places doit etre un nombre entier.",
+        },
     )
 
     def __init__(self, *args, representation=None, **kwargs):

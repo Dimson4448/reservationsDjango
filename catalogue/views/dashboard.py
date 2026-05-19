@@ -1,11 +1,13 @@
 import csv
 
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import DecimalField, ExpressionWrapper, F, Sum
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from catalogue.models import Representation, RepresentationReservation, Reservation, Review, Show
 
@@ -48,6 +50,29 @@ def index(request):
         ),
     }
     return render(request, "dashboard/index.html", context)
+
+
+@staff_member_required
+def pending_reviews(request):
+    reviews = (
+        Review.objects.select_related("user", "show")
+        .filter(validated=False)
+        .order_by("-created_at", "-id")
+    )
+    return render(request, "dashboard/reviews.html", {
+        "reviews": reviews,
+    })
+
+
+@staff_member_required
+@require_POST
+def validate_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id, validated=False)
+    review.validated = True
+    review.updated_at = timezone.now()
+    review.save(update_fields=["validated", "updated_at"])
+    messages.success(request, "Avis valide.")
+    return redirect("catalogue:dashboard-reviews")
 
 
 @staff_member_required

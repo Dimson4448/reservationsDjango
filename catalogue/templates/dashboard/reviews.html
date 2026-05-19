@@ -1,0 +1,49 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Avis en attente - Ultimate SPT{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <h1>Avis en attente</h1>
+        <p>Validation des avis clients avant affichage public.</p>
+    </div>
+    <a class="button" href="{% url 'catalogue:dashboard-index' %}">Retour au tableau de bord</a>
+</section>
+
+<section class="panel">
+    {% if reviews %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Spectacle</th>
+                    <th>Client</th>
+                    <th>Note</th>
+                    <th>Avis</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for review in reviews %}
+                    <tr>
+                        <td>{{ review.show.title }}</td>
+                        <td>{{ review.user.username }}</td>
+                        <td>{{ review.stars }}/5</td>
+                        <td>{{ review.review }}</td>
+                        <td>
+                            <form method="post" action="{% url 'catalogue:dashboard-review-validate' review.id %}">
+                                {% csrf_token %}
+                                <button class="button button-primary" type="submit">Valider</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>Aucun avis en attente.</p>
+    {% endif %}
+</section>
+{% endblock %}

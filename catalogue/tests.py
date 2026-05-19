@@ -62,6 +62,15 @@ class CatalogueRoutingTests(SimpleTestCase):
             dashboard.export_reservations,
         )
 
+    def test_dashboard_reviews_route_is_registered(self):
+        self.assertEqual(resolve(reverse("catalogue:dashboard-reviews")).func, dashboard.pending_reviews)
+
+    def test_dashboard_review_validation_route_is_registered(self):
+        self.assertEqual(
+            resolve(reverse("catalogue:dashboard-review-validate", args=[1])).func,
+            dashboard.validate_review,
+        )
+
 
 class CatalogueTemplateTests(SimpleTestCase):
     def test_about_page_renders(self):
@@ -84,6 +93,7 @@ class CatalogueTemplateTests(SimpleTestCase):
             "reservation/confirmation.html",
             "reservation/ticket.html",
             "dashboard/index.html",
+            "dashboard/reviews.html",
         ]
         for template_name in templates:
             with self.subTest(template=template_name):
@@ -174,6 +184,81 @@ class DashboardAccessTests(TestCase):
         self.assertIn("reference,client,email,statut,date,spectacle,quantite,prix,total", content)
         self.assertIn("Dashboard Show", content)
         self.assertIn("30.00", content)
+
+    def test_staff_user_can_view_pending_reviews(self):
+        show = Show.objects.create(
+            slug="moderation-show",
+            title="Moderation Show",
+            description="Avis a moderer",
+            duration=60,
+            created_in=2026,
+            location=None,
+            bookable=True,
+        )
+        Review.objects.create(
+            user=self.user,
+            show=show,
+            review="Avis a valider",
+            stars=4,
+            validated=False,
+        )
+        self.client.login(username="staff", password="pass12345")
+
+        response = self.client.get(reverse("catalogue:dashboard-reviews"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Avis a valider")
+        self.assertContains(response, "Moderation Show")
+
+    def test_staff_user_can_validate_pending_review(self):
+        show = Show.objects.create(
+            slug="validation-show",
+            title="Validation Show",
+            description="Validation avis",
+            duration=60,
+            created_in=2026,
+            location=None,
+            bookable=True,
+        )
+        review = Review.objects.create(
+            user=self.user,
+            show=show,
+            review="Excellent",
+            stars=5,
+            validated=False,
+        )
+        self.client.login(username="staff", password="pass12345")
+
+        response = self.client.post(reverse("catalogue:dashboard-review-validate", args=[review.id]))
+
+        self.assertRedirects(response, reverse("catalogue:dashboard-reviews"))
+        review.refresh_from_db()
+        self.assertTrue(review.validated)
+
+    def test_non_staff_user_cannot_validate_review(self):
+        show = Show.objects.create(
+            slug="forbidden-review-show",
+            title="Forbidden Review Show",
+            description="Avis protege",
+            duration=60,
+            created_in=2026,
+            location=None,
+            bookable=True,
+        )
+        review = Review.objects.create(
+            user=self.user,
+            show=show,
+            review="A proteger",
+            stars=3,
+            validated=False,
+        )
+        self.client.login(username="client-dashboard", password="pass12345")
+
+        response = self.client.post(reverse("catalogue:dashboard-review-validate", args=[review.id]))
+
+        self.assertEqual(response.status_code, 302)
+        review.refresh_from_db()
+        self.assertFalse(review.validated)
 
 
 class ReservationFlowTests(TestCase):

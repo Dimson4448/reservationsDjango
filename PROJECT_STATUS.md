@@ -1,0 +1,52 @@
+# Etat du projet Ultimate SPT
+
+Derniere mise a jour : 19 mai 2026.
+
+## Fonctionnalites realisees
+
+- Frontend Django coherent avec le nom Ultimate SPT.
+- Page d'accueil avec image plein ecran.
+- Catalogue des spectacles avec recherche, filtres et pagination.
+- Catalogue des artistes avec recherche et pagination.
+- Fiche spectacle avec representations, tarifs, disponibilite et avis valides.
+- Reservation utilisateur avec validation de quantite et controle des tarifs.
+- Confirmation de reservation et billet imprimable.
+- Profil utilisateur avec historique, filtre par statut et annulation asynchrone.
+- API REST avec JWT pour les principales ressources.
+- Tableau de bord staff avec statistiques.
+- Gestion staff des reservations avec filtre, pagination, annulation et reactivation.
+- Moderation staff des avis avec validation.
+- Export CSV des reservations.
+- Administration Django personnalisee et harmonisee avec le style du site.
+- Configuration de deploiement preparee, sans deploiement effectif.
+- Tests automatises pour les parcours principaux.
+
+## Points a verifier manuellement
+
+- Tester une reservation complete avec un compte utilisateur.
+- Tester l'impression du billet.
+- Tester la validation d'un avis avec un compte staff.
+- Tester l'export CSV depuis le tableau de bord staff.
+- Tester l'admin Django sur `/admin/`.
+- Relire les textes visibles sur mobile et desktop.
+
+## Avant fusion `api` vers `main`
+
+Executer :
+
+```powershell
+.\venv312\Scripts\python.exe manage.py check
+.\venv312\Scripts\python.exe manage.py makemigrations --check --dry-run
+.\venv312\Scripts\python.exe manage.py test --noinput
+```
+
+Ensuite, fusionner uniquement si le site est valide fonctionnellement.
+
+## Avant deploiement
+
+- Completer `.env` a partir de `.env.example`.
+- Mettre `DJANGO_DEBUG=False`.
+- Renseigner `DJANGO_ALLOWED_HOSTS`.
+- Verifier la base de donnees de production.
+- Lancer `collectstatic` si l'hebergeur le demande.
+- Lancer `python manage.py check --deploy`.

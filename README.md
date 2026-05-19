@@ -4,15 +4,19 @@ Projet personnel de reservation de spectacles en ligne.
 
 ## Branche `api`
 
-Cette branche contient le socle du jour 1 avec :
+Cette branche contient la version de travail actuelle avec :
 
-- catalogue des spectacles et detail d'un spectacle ;
-- formulaire de reservation depuis une representation ;
-- pages d'authentification, profil et gestion de compte ;
-- administration Django enrichie ;
-- API REST pour les artistes avec permissions ;
+- catalogue des spectacles avec recherche, filtres et pagination ;
+- liste et fiches artistes ;
+- detail d'un spectacle avec representations, tarifs et avis valides ;
+- formulaire de reservation securise depuis une representation ;
+- page de confirmation et billet imprimable ;
+- profil utilisateur avec historique, filtre par statut et annulation asynchrone ;
+- tableau de bord staff avec statistiques, gestion des reservations, moderation des avis et export CSV ;
+- administration Django personnalisee aux couleurs du site ;
+- API REST pour les artistes, spectacles, representations, reservations et avis ;
 - authentification JWT pour l'API ;
-- tests backend pour le parcours web et l'API.
+- tests backend pour les routes, formulaires, parcours web, API et admin.
 
 Le dossier `PID_Groupe3/` est ignore et ne fait pas partie de ce projet personnel.
 
@@ -26,12 +30,12 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Avec l'environnement local deja present sur ce poste, les commandes de verification ont ete lancees avec :
+Avec l'environnement local deja present sur ce poste, les commandes de verification sont lancees avec :
 
 ```powershell
-.\.virtualenvs\djangodev\Scripts\python.exe manage.py check
-.\.virtualenvs\djangodev\Scripts\python.exe manage.py makemigrations --check --dry-run
-.\.virtualenvs\djangodev\Scripts\python.exe manage.py test --noinput
+.\venv312\Scripts\python.exe manage.py check
+.\venv312\Scripts\python.exe manage.py makemigrations --check --dry-run
+.\venv312\Scripts\python.exe manage.py test --noinput
 ```
 
 ## Dump SQL
@@ -58,18 +62,47 @@ Les consignes de deploiement et de verification sont dans `DEPLOYMENT.md`.
 ## Endpoints utiles
 
 - `GET /` : accueil
-- `GET /shows/` : liste des spectacles
-- `GET /shows/<id>` : detail d'un spectacle
-- `GET|POST /representation/<id>/reserve` : creation d'une reservation
-- `POST /reservation/<id>/cancel` : annulation d'une reservation
-- `GET|POST /api/artists/` : liste et creation d'artistes
-- `GET|PUT|PATCH|DELETE /api/artists/<id>/` : detail, modification et suppression d'un artiste
-- `GET /api/shows/` : liste des spectacles
-- `GET /api/shows/<id>/` : detail d'un spectacle
-- `POST /api/shows/<id>/reviews/` : soumission d'un avis sur un spectacle
-- `GET /api/representations/` : liste des representations
-- `GET|POST /api/reservations/` : liste et creation des reservations de l'utilisateur connecte
-- `POST /api/reservations/<id>/cancel/` : annulation d'une reservation de l'utilisateur connecte
-- `POST /api/token/` : obtention d'un token JWT
-- `POST /api/token/refresh/` : renouvellement du token JWT
+- `GET /about/` : presentation du projet
+- `GET /catalogue/show/` : liste des spectacles
+- `GET /catalogue/show/<id>` : detail d'un spectacle
+- `GET /catalogue/artist/` : liste des artistes
+- `GET /catalogue/artist/<id>` : detail d'un artiste
+- `GET|POST /catalogue/representation/<id>/reserve` : creation d'une reservation
+- `GET /catalogue/reservation/<id>/confirmation` : confirmation de reservation
+- `GET /catalogue/reservation/<id>/ticket` : billet imprimable
+- `POST /catalogue/reservation/<id>/cancel` : annulation d'une reservation
+- `GET /catalogue/dashboard/` : tableau de bord staff
+- `GET /catalogue/dashboard/reservations/` : gestion staff des reservations
+- `GET /catalogue/dashboard/reviews/` : moderation staff des avis
+- `GET /catalogue/dashboard/reservations/export/` : export CSV des reservations
+- `GET|POST /catalogue/api/artists/` : liste et creation d'artistes
+- `GET|PUT|PATCH|DELETE /catalogue/api/artists/<id>/` : detail, modification et suppression d'un artiste
+- `GET /catalogue/api/shows/` : liste des spectacles
+- `GET /catalogue/api/shows/<id>/` : detail d'un spectacle
+- `POST /catalogue/api/shows/<id>/reviews/` : soumission d'un avis sur un spectacle
+- `GET /catalogue/api/representations/` : liste des representations
+- `GET|POST /catalogue/api/reservations/` : liste et creation des reservations de l'utilisateur connecte
+- `POST /catalogue/api/reservations/<id>/cancel/` : annulation d'une reservation de l'utilisateur connecte
+- `POST /catalogue/api/token/` : obtention d'un token JWT
+- `POST /catalogue/api/token/refresh/` : renouvellement du token JWT
+
+## Checklist avant fusion vers `main`
+
+Avant de fusionner `api` vers `main`, verifier :
+
+- navigation publique : accueil, a propos, spectacles, artistes ;
+- compte utilisateur : inscription, connexion, profil, changement de mot de passe ;
+- reservation : creation, confirmation, billet imprimable, annulation ;
+- staff : tableau de bord, export CSV, moderation des avis, gestion des reservations ;
+- administration Django : affichage, listes, recherche et formulaires ;
+- API : authentification JWT et endpoints principaux ;
+- commandes finales :
+
+```powershell
+.\venv312\Scripts\python.exe manage.py check
+.\venv312\Scripts\python.exe manage.py makemigrations --check --dry-run
+.\venv312\Scripts\python.exe manage.py test --noinput
+```
+
+La fusion vers `main` doit etre faite uniquement apres validation manuelle du site complet.
 

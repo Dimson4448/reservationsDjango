@@ -1,6 +1,9 @@
+import csv
+
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
 from django.db.models import DecimalField, ExpressionWrapper, F, Sum
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 
@@ -45,3 +48,37 @@ def index(request):
         ),
     }
     return render(request, "dashboard/index.html", context)
+
+
+@staff_member_required
+def export_reservations(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="reservations.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(["reference", "client", "email", "statut", "date", "spectacle", "quantite", "prix", "total"])
+
+    reservation_items = (
+        RepresentationReservation.objects.select_related(
+            "reservation__user",
+            "representation__show",
+        )
+        .order_by("-reservation__booking_date", "reservation_id")
+    )
+    for item in reservation_items:
+        reservation = item.reservation
+        writer.writerow(
+            [
+                reservation.id,
+                reservation.user.username,
+                reservation.user.email,
+                reservation.get_status_display(),
+                timezone.localtime(reservation.booking_date).strftime("%d/%m/%Y %H:%M"),
+                item.representation.show.title,
+                item.quantity,
+                f"{item.price:.2f}",
+                f"{item.line_total:.2f}",
+            ]
+        )
+
+    return response

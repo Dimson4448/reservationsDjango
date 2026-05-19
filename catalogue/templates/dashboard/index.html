@@ -8,7 +8,10 @@
         <h1>Tableau de bord</h1>
         <p>Vue rapide des activites du site Ultimate SPT.</p>
     </div>
-    <a class="button button-primary" href="{% url 'admin:index' %}">Administration</a>
+    <div class="actions">
+        <a class="button button-primary" href="{% url 'catalogue:dashboard-reservations-export' %}">Exporter CSV</a>
+        <a class="button button-primary" href="{% url 'admin:index' %}">Administration</a>
+    </div>
 </section>
 
 <section class="dashboard-grid" aria-label="Statistiques">

@@ -20,6 +20,7 @@ app_name = 'catalogue'
 
 urlpatterns = [
     path('dashboard/', views.dashboard.index, name='dashboard-index'),
+    path('dashboard/reservations/export/', views.dashboard.export_reservations, name='dashboard-reservations-export'),
     path('artist/', views.artist.index, name='artist-index'),
     path('artist/<int:artist_id>', views.artist.show, name='artist-show'),
     path('artist/edit/<int:artist_id>', views.artist.edit, name='artist-edit'),

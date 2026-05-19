@@ -52,6 +52,12 @@ class CatalogueRoutingTests(SimpleTestCase):
     def test_dashboard_route_is_registered(self):
         self.assertEqual(resolve(reverse("catalogue:dashboard-index")).func, dashboard.index)
 
+    def test_dashboard_export_route_is_registered(self):
+        self.assertEqual(
+            resolve(reverse("catalogue:dashboard-reservations-export")).func,
+            dashboard.export_reservations,
+        )
+
 
 class CatalogueTemplateTests(SimpleTestCase):
     def test_main_templates_compile(self):
@@ -114,6 +120,47 @@ class DashboardAccessTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Tableau de bord")
         self.assertContains(response, "Spectacles")
+
+    def test_staff_user_can_export_reservations_csv(self):
+        locality = Locality.objects.create(postal_code="1000", locality="Bruxelles")
+        location = Location.objects.create(
+            slug="dashboard-theatre",
+            designation="Theatre Dashboard",
+            address="Rue Dashboard 1",
+            locality=locality,
+            website="https://dashboard.example.com",
+        )
+        show = Show.objects.create(
+            slug="dashboard-show",
+            title="Dashboard Show",
+            description="Export test",
+            duration=70,
+            created_in=2026,
+            location=location,
+            bookable=True,
+        )
+        representation = Representation.objects.create(
+            show=show,
+            location=location,
+            schedule=timezone.now() + timedelta(days=2),
+        )
+        reservation = Reservation.objects.create(user=self.user)
+        RepresentationReservation.objects.create(
+            reservation=reservation,
+            representation=representation,
+            price=Decimal("15.00"),
+            quantity=2,
+        )
+        self.client.login(username="staff", password="pass12345")
+
+        response = self.client.get(reverse("catalogue:dashboard-reservations-export"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "text/csv")
+        content = response.content.decode()
+        self.assertIn("reference,client,email,statut,date,spectacle,quantite,prix,total", content)
+        self.assertIn("Dashboard Show", content)
+        self.assertIn("30.00", content)
 
 
 class ReservationFlowTests(TestCase):

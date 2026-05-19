@@ -10,7 +10,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('catalogue/', include('catalogue.urls')),
 
-    # Routes de réinitialisation du mot de passe pour l'administration
+    # Routes de reinitialisation du mot de passe pour l'administration
     path(
         "admin/password_reset/",
         auth_views.PasswordResetView.as_view(
@@ -44,6 +44,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 ]
 
-admin.site.index_title = "Projet Réservations"
-admin.site.index_header = "Projet Réservations HEADER"
-admin.site.site_title = "Spectacles"
+admin.site.site_header = "Ultimate SPT Administration"
+admin.site.index_title = "Pilotage des spectacles"
+admin.site.site_title = "Ultimate SPT Admin"

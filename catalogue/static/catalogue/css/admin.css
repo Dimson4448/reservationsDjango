@@ -1,0 +1,148 @@
+:root {
+    --primary: #115e59;
+    --secondary: #0f766e;
+    --accent: #d7b46a;
+    --primary-fg: #ffffff;
+    --body-bg: #efe6d2;
+    --body-fg: #202124;
+    --body-quiet-color: #62615d;
+    --body-loud-color: #1f1a16;
+    --header-color: #ffffff;
+    --header-branding-color: #ffffff;
+    --header-bg: #115e59;
+    --header-link-color: #f8f2e7;
+    --breadcrumbs-bg: #0f766e;
+    --breadcrumbs-fg: #f8f2e7;
+    --breadcrumbs-link-fg: #ffffff;
+    --link-fg: #115e59;
+    --link-hover-color: #0f766e;
+    --link-selected-fg: #0f766e;
+    --hairline-color: #d8d2c6;
+    --border-color: #d8d2c6;
+    --error-fg: #b42318;
+    --message-success-bg: #d9f7ef;
+    --message-warning-bg: #fff4cf;
+    --message-error-bg: #f5e1de;
+    --darkened-bg: #ead8bb;
+    --selected-bg: #f8f2e7;
+    --selected-row: #ead8bb;
+    --button-fg: #ffffff;
+    --button-bg: #0f766e;
+    --button-hover-bg: #115e59;
+    --default-button-bg: #0f766e;
+    --default-button-hover-bg: #115e59;
+    --close-button-bg: #62615d;
+    --close-button-hover-bg: #202124;
+    --delete-button-bg: #b42318;
+    --delete-button-hover-bg: #8f1d15;
+    --object-tools-fg: #ffffff;
+    --object-tools-bg: #0f766e;
+    --object-tools-hover-bg: #115e59;
+}
+
+body {
+    background: linear-gradient(135deg, #f8f2e7 0%, #efe6d2 48%, #d9c19e 100%);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#header {
+    min-height: 58px;
+    padding: 12px 32px;
+    box-shadow: 0 12px 28px rgba(31, 26, 22, 0.12);
+}
+
+#branding h1,
+#branding h1 a:link,
+#branding h1 a:visited {
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+#user-tools {
+    font-size: 12px;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+div.breadcrumbs {
+    padding: 12px 32px;
+    border: 0;
+}
+
+#content {
+    padding: 28px 32px;
+}
+
+#content-main,
+.module,
+.inline-group,
+div.form-row,
+.submit-row {
+    border-radius: 8px;
+}
+
+.module,
+.inline-group {
+    border: 1px solid #d8d2c6;
+    box-shadow: 0 16px 35px rgba(32, 33, 36, 0.08);
+}
+
+.module h2,
+.module caption,
+.inline-group h2 {
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #115e59 0%, #0f766e 100%);
+    color: #ffffff;
+    font-weight: 700;
+}
+
+table {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+thead th {
+    background: #f8f2e7;
+    color: #1f1a16;
+}
+
+tr:nth-child(even) {
+    background: #fbf7ef;
+}
+
+.button,
+input[type=submit],
+input[type=button],
+.submit-row input,
+a.button {
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+.object-tools a,
+.object-tools a:link,
+.object-tools a:visited {
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+#changelist-filter {
+    border-left: 1px solid #d8d2c6;
+    background: #f8f2e7;
+}
+
+#changelist-filter h2 {
+    background: #115e59;
+    color: #ffffff;
+}
+
+#changelist .actions {
+    padding: 12px;
+    background: #f8f2e7;
+    border-radius: 8px 8px 0 0;
+}
+
+.messagelist li {
+    border-radius: 6px;
+}

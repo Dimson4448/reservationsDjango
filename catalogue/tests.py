@@ -116,6 +116,11 @@ class CatalogueAdminTests(SimpleTestCase):
         self.assertIsInstance(admin.site._registry[Reservation], ReservationAdmin)
         self.assertIsInstance(admin.site._registry[Review], ReviewAdmin)
 
+    def test_admin_branding_is_configured(self):
+        self.assertEqual(admin.site.site_header, "Ultimate SPT Administration")
+        self.assertEqual(admin.site.index_title, "Pilotage des spectacles")
+        self.assertEqual(admin.site.site_title, "Ultimate SPT Admin")
+
 
 class DashboardAccessTests(TestCase):
     def setUp(self):

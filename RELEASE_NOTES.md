@@ -1,31 +1,63 @@
-# Ultimate SPT - Release v1.1.0
+# Ultimate SPT - Release v1.2.0
 
 ## Objectif
 
-Premiere version exploitable du projet personnel Ultimate SPT sur la branche `api`.
+Version de travail avancee du projet personnel Ultimate SPT sur la branche `api`.
 
-Cette release pose le socle du site de reservation de spectacles en ligne avec une interface web Django, un debut d'API REST et les tests principaux du jour 1.
+Cette release couvre le parcours principal d'un site de reservation de spectacles : consultation du catalogue, compte utilisateur, reservation, billet, espace staff, API REST et administration Django personnalisee.
 
-## Nouveautes
+## Nouveautes principales
 
-- Branding public renomme en `Ultimate SPT`.
-- Page d'accueil Django pour presenter le catalogue de spectacles.
-- Liste et detail des spectacles.
-- Parcours de reservation depuis une representation.
-- Pages de connexion, inscription, profil et gestion du compte.
-- Gestion des artistes cote interface web.
-- API REST pour les artistes.
-- Authentification JWT pour l'API.
-- Administration Django enrichie.
-- Documentation de demarrage dans le README.
+- Branding public stabilise sur `Ultimate SPT`.
+- Page d'accueil avec image plein ecran et style coherent.
+- Page `A propos` pour presenter le projet.
+- Liste des spectacles avec recherche, filtre par disponibilite et pagination.
+- Liste des artistes avec recherche et pagination.
+- Fiche spectacle avec representations, lieu, tarifs, disponibilite et avis valides.
+- Creation de reservation avec validation de quantite et controle du tarif choisi.
+- Page de confirmation apres reservation.
+- Billet imprimable pour chaque reservation de l'utilisateur.
+- Profil utilisateur avec historique, filtre par statut et annulation asynchrone.
+- Avis utilisateur soumis en attente de validation.
+
+## Espace staff
+
+- Tableau de bord staff avec statistiques principales.
+- Gestion staff des reservations avec filtre, pagination, annulation et reactivation.
+- Export CSV des reservations.
+- Moderation staff des avis en attente.
+- Listes staff paginees pour garder l'interface utilisable avec plus de donnees.
+
+## Administration Django
+
+- Branding admin `Ultimate SPT Administration`.
+- Theme admin harmonise avec les couleurs du site public.
+- Raccourcis admin vers le site, le tableau de bord, les reservations et les avis.
+- Listes admin enrichies pour spectacles, reservations, avis, lieux, tarifs et liaisons spectacle/tarif.
+- Champs relationnels en recherche autocomplete.
+- Champs calcules et dates sensibles en lecture seule.
+
+## API
+
+- Authentification JWT.
+- Endpoints artistes.
+- Endpoints spectacles.
+- Endpoints representations.
+- Endpoints reservations utilisateur.
+- Endpoint d'annulation de reservation.
+- Endpoint de creation d'avis sur un spectacle.
+- URL de confirmation retournee apres creation de reservation par API.
 
 ## Technique
 
 - Backend : Django 5.0.14.
 - API : Django REST Framework 3.16.1.
 - Authentification API : Simple JWT 5.5.1.
-- Base de donnees locale : MySQL selon la configuration du projet.
-- Dossiers locaux exclus du depot : environnements virtuels, caches Python, base locale, `mysql/` et `PID_Groupe3/`.
+- Base locale : MySQL/MariaDB selon la configuration du projet.
+- Configuration sensible preparee via `.env` et `.env.example`.
+- Documentation de deploiement disponible dans `DEPLOYMENT.md`.
+- Etat projet et checklist finale disponibles dans `PROJECT_STATUS.md`.
+- Le dossier `PID_Groupe3/` reste exclu du travail sur ce projet personnel.
 
 ## Verification
 
@@ -33,7 +65,7 @@ Commandes validees localement :
 
 ```powershell
 .\venv312\Scripts\python.exe manage.py check
-.\venv312\Scripts\python.exe manage.py makemigrations --check --dry-run
+.\venv312\Scripts\python.exe makemigrations --check --dry-run
 .\venv312\Scripts\python.exe manage.py test --noinput
 ```
 
@@ -41,12 +73,21 @@ Resultat :
 
 - system check OK ;
 - aucune migration manquante ;
-- 8 tests OK.
+- 65 tests OK.
 
-## Points a continuer
+## Points restants avant fusion vers `main`
 
-- Ajouter une interface plus complete pour le choix des places et des tarifs.
-- Ameliorer le design responsive.
-- Ajouter plus de controles sur les reservations.
-- Etendre l'API aux spectacles, representations et reservations.
-- Ajouter des donnees de demonstration propres pour les tests utilisateur.
+- Test manuel complet du parcours public.
+- Test manuel du parcours utilisateur : inscription, connexion, reservation, billet, annulation.
+- Test manuel du parcours staff : tableau de bord, moderation, export CSV, gestion des reservations.
+- Validation visuelle finale de l'admin Django.
+- Fusion `api` vers `main` uniquement apres confirmation explicite.
+
+## Points restants avant deploiement
+
+- Choisir l'hebergeur.
+- Completer le fichier `.env` de production.
+- Configurer `DJANGO_ALLOWED_HOSTS`.
+- Passer `DJANGO_DEBUG=False`.
+- Lancer `collectstatic` si necessaire.
+- Lancer `python manage.py check --deploy`.

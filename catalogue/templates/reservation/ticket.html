@@ -1,0 +1,65 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Billet #{{ reservation.id }} - Ultimate SPT{% endblock %}
+
+{% block content %}
+<section class="ticket-page">
+    <div class="ticket-actions">
+        <a class="button" href="{% url 'accounts:user-profile' %}">Retour au profil</a>
+        <button class="button button-primary" type="button" onclick="window.print()">Imprimer</button>
+    </div>
+
+    <article class="ticket-card">
+        <header class="ticket-header">
+            <div>
+                <span>Ultimate SPT</span>
+                <h1>Billet de reservation</h1>
+            </div>
+            <strong>#{{ reservation.id }}</strong>
+        </header>
+
+        <div class="summary-box">
+            <div>
+                <span>Client</span>
+                <strong>{{ reservation.user.get_full_name|default:reservation.user.username }}</strong>
+            </div>
+            <div>
+                <span>Statut</span>
+                <strong>{{ reservation.get_status_display }}</strong>
+            </div>
+            <div>
+                <span>Total</span>
+                <strong>{{ reservation.total_amount }} EUR</strong>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Spectacle</th>
+                    <th>Date</th>
+                    <th>Lieu</th>
+                    <th>Places</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in reservation.representation_reservations.all %}
+                    <tr>
+                        <td>{{ item.representation.show.title }}</td>
+                        <td>{{ item.representation.schedule|date:"d/m/Y H:i" }}</td>
+                        <td>{{ item.representation.location|default:item.representation.show.location }}</td>
+                        <td>{{ item.quantity }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <footer class="ticket-footer">
+            <span>Presentez ce billet a l'entree.</span>
+            <span>Genere le {% now "d/m/Y H:i" %}</span>
+        </footer>
+    </article>
+</section>
+{% endblock %}

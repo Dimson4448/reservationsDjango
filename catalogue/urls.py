@@ -39,6 +39,7 @@ urlpatterns = [
     path('show/<int:show_id>/review', views.show_.add_review, name='show-review-create'),
     path('representation/<int:representation_id>/reserve', views.show_.reserve, name='reservation-create'),
     path('reservation/<int:reservation_id>/confirmation', views.show_.reservation_confirmation, name='reservation-confirmation'),
+    path('reservation/<int:reservation_id>/ticket', views.show_.reservation_ticket, name='reservation-ticket'),
     path('reservation/<int:reservation_id>/cancel', views.show_.cancel_reservation, name='reservation-cancel'),
     path('representation/', views.representation.index, name='representation-index'),
     path('representation/<int:representation_id>', views.representation.show, name='representation-show'),

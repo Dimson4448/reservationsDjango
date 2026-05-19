@@ -143,6 +143,21 @@ def reservation_confirmation(request, reservation_id):
 
 
 @login_required
+def reservation_ticket(request, reservation_id):
+    reservation = get_object_or_404(
+        Reservation.objects.prefetch_related(
+            "representation_reservations__representation__show",
+            "representation_reservations__representation__location",
+        ),
+        id=reservation_id,
+        user=request.user,
+    )
+    return render(request, "reservation/ticket.html", {
+        "reservation": reservation,
+    })
+
+
+@login_required
 @require_POST
 def cancel_reservation(request, reservation_id):
     reservation = get_object_or_404(

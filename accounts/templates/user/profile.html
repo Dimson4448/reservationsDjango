@@ -52,7 +52,7 @@
                 <th>Places</th>
                 <th>Total</th>
                 <th>Statut</th>
-                <th>Action</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -66,6 +66,7 @@
                         <td>{{ item.line_total }} EUR</td>
                         <td><span data-reservation-status="{{ reservation.id }}" class="status status-{{ reservation.status }}">{{ reservation.get_status_display }}</span></td>
                         <td data-reservation-action="{{ reservation.id }}">
+                            <a class="link-button" href="{% url 'catalogue:reservation-ticket' reservation.id %}">Billet</a>
                             {% if reservation.is_cancelable %}
                                 <form class="js-cancel-reservation" method="post" action="{% url 'catalogue:reservation-cancel' reservation.id %}">
                                     {% csrf_token %}
@@ -81,7 +82,7 @@
                         <td>#{{ reservation.id }}</td>
                         <td colspan="4">Aucun detail</td>
                         <td><span class="status status-{{ reservation.status }}">{{ reservation.get_status_display }}</span></td>
-                        <td>-</td>
+                        <td><a class="link-button" href="{% url 'catalogue:reservation-ticket' reservation.id %}">Billet</a></td>
                     </tr>
                 {% endfor %}
             {% empty %}

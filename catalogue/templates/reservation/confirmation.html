@@ -9,7 +9,10 @@
         <h1>Merci, votre reservation est enregistree.</h1>
         <p>Reference #{{ reservation.id }}</p>
     </div>
-    <a class="button" href="{% url 'accounts:user-profile' %}">Voir mes reservations</a>
+    <div class="actions">
+        <a class="button button-primary" href="{% url 'catalogue:reservation-ticket' reservation.id %}">Voir le billet</a>
+        <a class="button" href="{% url 'accounts:user-profile' %}">Voir mes reservations</a>
+    </div>
 </section>
 
 <section class="panel">
@@ -57,6 +60,7 @@
 
 <nav class="actions">
     <a class="button button-primary" href="{% url 'catalogue:show-index' %}">Continuer a parcourir</a>
+    <a class="button" href="{% url 'catalogue:reservation-ticket' reservation.id %}">Voir le billet</a>
     <a class="button" href="{% url 'accounts:user-profile' %}">Retour au profil</a>
 </nav>
 {% endblock %}

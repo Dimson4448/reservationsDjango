@@ -41,6 +41,10 @@ class CatalogueRoutingTests(SimpleTestCase):
         url = reverse("catalogue:reservation-confirmation", args=[1])
         self.assertEqual(resolve(url).func, show_.reservation_confirmation)
 
+    def test_reservation_ticket_route_is_registered(self):
+        url = reverse("catalogue:reservation-ticket", args=[1])
+        self.assertEqual(resolve(url).func, show_.reservation_ticket)
+
     def test_review_create_route_is_registered(self):
         url = reverse("catalogue:show-review-create", args=[1])
         self.assertEqual(resolve(url).func, show_.add_review)
@@ -70,6 +74,7 @@ class CatalogueTemplateTests(SimpleTestCase):
             "show/show.html",
             "reservation/create.html",
             "reservation/confirmation.html",
+            "reservation/ticket.html",
             "dashboard/index.html",
         ]
         for template_name in templates:
@@ -236,6 +241,37 @@ class ReservationFlowTests(TestCase):
 
         self.assertContains(response, f"Reference #{reservation.id}")
         self.assertContains(response, self.show.title)
+
+    def test_authenticated_user_can_view_own_reservation_ticket(self):
+        reservation = Reservation.objects.create(user=self.user)
+        RepresentationReservation.objects.create(
+            reservation=reservation,
+            representation=self.representation,
+            price=self.price.price,
+            quantity=1,
+        )
+        self.client.login(username="client", password="pass12345")
+
+        response = self.client.get(reverse("catalogue:reservation-ticket", args=[reservation.id]))
+
+        self.assertContains(response, "Billet de reservation")
+        self.assertContains(response, f"#{reservation.id}")
+        self.assertContains(response, self.show.title)
+
+    def test_user_cannot_view_another_user_ticket(self):
+        other_user = User.objects.create_user(username="other-client", password="pass12345")
+        reservation = Reservation.objects.create(user=other_user)
+        RepresentationReservation.objects.create(
+            reservation=reservation,
+            representation=self.representation,
+            price=self.price.price,
+            quantity=1,
+        )
+        self.client.login(username="client", password="pass12345")
+
+        response = self.client.get(reverse("catalogue:reservation-ticket", args=[reservation.id]))
+
+        self.assertEqual(response.status_code, 404)
 
     def test_user_can_cancel_own_reservation(self):
         reservation = Reservation.objects.create(user=self.user)

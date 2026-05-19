@@ -21,6 +21,18 @@ def _session_value(session, key, default=None):
     return getattr(session, key, default)
 
 
+def configured_payment_methods():
+    labels = {
+        "card": "Carte bancaire",
+        "bancontact": "Bancontact",
+        "klarna": "Klarna",
+    }
+    return [
+        {"value": method, "label": labels.get(method, method.title())}
+        for method in settings.STRIPE_PAYMENT_METHOD_TYPES
+    ]
+
+
 def index(request):
     query = request.GET.get("q", "").strip()
     availability = request.GET.get("availability", "").strip()
@@ -153,7 +165,7 @@ def reservation_cart(request, reservation_id):
     return render(request, "reservation/cart.html", {
         "reservation": reservation,
         "stripe_configured": bool(settings.STRIPE_SECRET_KEY),
-        "payment_methods": settings.STRIPE_PAYMENT_METHOD_TYPES,
+        "payment_methods": configured_payment_methods(),
     })
 
 

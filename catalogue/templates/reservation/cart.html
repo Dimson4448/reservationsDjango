@@ -65,18 +65,12 @@
         <form method="post" action="{% url 'catalogue:reservation-payment-start' reservation.id %}">
             {% csrf_token %}
             <div class="payment-methods">
-                <label>
-                    <input type="radio" name="payment_method" value="card" checked>
-                    Carte bancaire
-                </label>
-                <label>
-                    <input type="radio" name="payment_method" value="bancontact">
-                    Bancontact
-                </label>
-                <label>
-                    <input type="radio" name="payment_method" value="klarna">
-                    Klarna
-                </label>
+                {% for method in payment_methods %}
+                    <label>
+                        <input type="radio" name="payment_method" value="{{ method.value }}" {% if forloop.first %}checked{% endif %}>
+                        {{ method.label }}
+                    </label>
+                {% endfor %}
             </div>
             <button class="button button-primary" type="submit">Payer maintenant</button>
         </form>

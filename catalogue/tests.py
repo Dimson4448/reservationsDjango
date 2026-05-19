@@ -477,6 +477,27 @@ class ReservationFlowTests(TestCase):
         self.assertContains(response, "Votre panier")
         self.assertContains(response, "Le billet sera disponible uniquement apres paiement.")
 
+    @override_settings(STRIPE_SECRET_KEY="sk_test", STRIPE_PAYMENT_METHOD_TYPES=["card"])
+    def test_cart_displays_configured_payment_methods_only(self):
+        reservation = Reservation.objects.create(
+            user=self.user,
+            status=Reservation.Status.PENDING,
+            payment_status=Reservation.PaymentStatus.UNPAID,
+        )
+        RepresentationReservation.objects.create(
+            reservation=reservation,
+            representation=self.representation,
+            price=self.price.price,
+            quantity=1,
+        )
+        self.client.login(username="client", password="pass12345")
+
+        response = self.client.get(reverse("catalogue:reservation-cart", args=[reservation.id]))
+
+        self.assertContains(response, "Carte bancaire")
+        self.assertNotContains(response, "Bancontact")
+        self.assertNotContains(response, "Klarna")
+
     def test_unpaid_reservation_redirects_confirmation_to_cart(self):
         reservation = Reservation.objects.create(
             user=self.user,

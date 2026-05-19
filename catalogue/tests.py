@@ -20,7 +20,7 @@ from catalogue.models import (
     Review,
     Show,
 )
-from catalogue.admin import ReservationAdmin, ReviewAdmin, ShowAdmin
+from catalogue.admin import LocationAdmin, PriceAdmin, PriceShowAdmin, ReservationAdmin, ReviewAdmin, ShowAdmin
 from catalogue.views import artist, dashboard, show_
 
 
@@ -115,6 +115,9 @@ class CatalogueAdminTests(SimpleTestCase):
         self.assertIsInstance(admin.site._registry[Show], ShowAdmin)
         self.assertIsInstance(admin.site._registry[Reservation], ReservationAdmin)
         self.assertIsInstance(admin.site._registry[Review], ReviewAdmin)
+        self.assertIsInstance(admin.site._registry[Location], LocationAdmin)
+        self.assertIsInstance(admin.site._registry[Price], PriceAdmin)
+        self.assertIsInstance(admin.site._registry[PriceShow], PriceShowAdmin)
 
     def test_admin_branding_is_configured(self):
         self.assertEqual(admin.site.site_header, "Ultimate SPT Administration")

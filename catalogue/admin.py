@@ -39,10 +39,15 @@ class ArtistAdmin(admin.ModelAdmin):
 
 @admin.register(Show)
 class ShowAdmin(admin.ModelAdmin):
-    list_display = ("title", "location", "bookable", "created_in")
+    list_display = ("title", "location", "bookable", "created_in", "representation_count")
     list_filter = ("bookable", "created_in", "location")
     search_fields = ("title", "description", "location__designation")
+    list_editable = ("bookable",)
     ordering = ("title",)
+
+    @admin.display(description="Representations")
+    def representation_count(self, obj):
+        return obj.representations.count()
 
 
 @admin.register(Representation)
@@ -62,12 +67,16 @@ class RepresentationReservationInline(admin.TabularInline):
 
 @admin.register(Reservation)
 class ReservationAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "booking_date", "status", "total_amount")
+    list_display = ("id", "user", "booking_date", "status", "reserved_places", "total_amount")
     list_filter = ("status", "booking_date")
     search_fields = ("user__username", "user__email")
     date_hierarchy = "booking_date"
     inlines = [RepresentationReservationInline]
     actions = ["mark_confirmed", "mark_canceled"]
+
+    @admin.display(description="Places")
+    def reserved_places(self, obj):
+        return sum(item.quantity for item in obj.representation_reservations.all())
 
     @admin.action(description="Marquer comme confirmees")
     def mark_confirmed(self, request, queryset):
@@ -84,6 +93,7 @@ class ReviewAdmin(admin.ModelAdmin):
     list_filter = ("validated", "stars", "created_at")
     search_fields = ("show__title", "user__username", "review")
     date_hierarchy = "created_at"
+    list_editable = ("validated",)
     actions = ["validate_reviews", "unvalidate_reviews"]
 
     @admin.action(description="Valider les avis selectionnes")
@@ -95,13 +105,44 @@ class ReviewAdmin(admin.ModelAdmin):
         queryset.update(validated=False)
 
 
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ("designation", "locality", "phone", "website")
+    list_filter = ("locality",)
+    search_fields = ("designation", "address", "locality__locality", "website", "phone")
+    ordering = ("designation",)
+
+
+@admin.register(Price)
+class PriceAdmin(admin.ModelAdmin):
+    list_display = ("type", "price", "start_date", "end_date")
+    list_filter = ("start_date", "end_date")
+    search_fields = ("type", "description")
+    ordering = ("price", "type")
+
+
+@admin.register(PriceShow)
+class PriceShowAdmin(admin.ModelAdmin):
+    list_display = ("show", "price", "price_amount")
+    list_filter = ("show", "price")
+    search_fields = ("show__title", "price__type")
+    ordering = ("show__title", "price__price")
+
+    @admin.display(description="Montant")
+    def price_amount(self, obj):
+        return obj.price.price
+
+
+@admin.register(Locality)
+class LocalityAdmin(admin.ModelAdmin):
+    list_display = ("postal_code", "locality")
+    search_fields = ("postal_code", "locality")
+    ordering = ("postal_code", "locality")
+
+
 for model in [
     ArtistType,
     ArtistTypeShow,
-    Locality,
-    Location,
-    Price,
-    PriceShow,
     RepresentationReservation,
     Type,
 ]:

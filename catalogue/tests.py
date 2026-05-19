@@ -62,6 +62,15 @@ class CatalogueRoutingTests(SimpleTestCase):
             dashboard.export_reservations,
         )
 
+    def test_dashboard_reservations_route_is_registered(self):
+        self.assertEqual(resolve(reverse("catalogue:dashboard-reservations")).func, dashboard.reservations)
+
+    def test_dashboard_reservation_status_route_is_registered(self):
+        self.assertEqual(
+            resolve(reverse("catalogue:dashboard-reservation-status", args=[1])).func,
+            dashboard.update_reservation_status,
+        )
+
     def test_dashboard_reviews_route_is_registered(self):
         self.assertEqual(resolve(reverse("catalogue:dashboard-reviews")).func, dashboard.pending_reviews)
 
@@ -93,6 +102,7 @@ class CatalogueTemplateTests(SimpleTestCase):
             "reservation/confirmation.html",
             "reservation/ticket.html",
             "dashboard/index.html",
+            "dashboard/reservations.html",
             "dashboard/reviews.html",
         ]
         for template_name in templates:
@@ -184,6 +194,55 @@ class DashboardAccessTests(TestCase):
         self.assertIn("reference,client,email,statut,date,spectacle,quantite,prix,total", content)
         self.assertIn("Dashboard Show", content)
         self.assertIn("30.00", content)
+
+    def test_staff_user_can_view_reservations_dashboard(self):
+        reservation = Reservation.objects.create(user=self.user)
+        self.client.login(username="staff", password="pass12345")
+
+        response = self.client.get(reverse("catalogue:dashboard-reservations"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f"#{reservation.id}")
+        self.assertContains(response, self.user.username)
+
+    def test_staff_user_can_filter_reservations_dashboard_by_status(self):
+        confirmed = Reservation.objects.create(user=self.user)
+        canceled = Reservation.objects.create(user=self.user, status=Reservation.Status.CANCELED)
+        self.client.login(username="staff", password="pass12345")
+
+        response = self.client.get(
+            reverse("catalogue:dashboard-reservations"),
+            {"status": Reservation.Status.CANCELED},
+        )
+
+        self.assertContains(response, f"#{canceled.id}")
+        self.assertNotContains(response, f"#{confirmed.id}")
+
+    def test_staff_user_can_update_reservation_status(self):
+        reservation = Reservation.objects.create(user=self.user)
+        self.client.login(username="staff", password="pass12345")
+
+        response = self.client.post(
+            reverse("catalogue:dashboard-reservation-status", args=[reservation.id]),
+            {"status": Reservation.Status.CANCELED},
+        )
+
+        self.assertRedirects(response, reverse("catalogue:dashboard-reservations"))
+        reservation.refresh_from_db()
+        self.assertEqual(reservation.status, Reservation.Status.CANCELED)
+
+    def test_invalid_staff_reservation_status_is_rejected(self):
+        reservation = Reservation.objects.create(user=self.user)
+        self.client.login(username="staff", password="pass12345")
+
+        response = self.client.post(
+            reverse("catalogue:dashboard-reservation-status", args=[reservation.id]),
+            {"status": "archived"},
+        )
+
+        self.assertRedirects(response, reverse("catalogue:dashboard-reservations"))
+        reservation.refresh_from_db()
+        self.assertEqual(reservation.status, Reservation.Status.CONFIRMED)
 
     def test_staff_user_can_view_pending_reviews(self):
         show = Show.objects.create(

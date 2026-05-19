@@ -65,6 +65,40 @@ def pending_reviews(request):
 
 
 @staff_member_required
+def reservations(request):
+    status_filter = request.GET.get("status", "").strip()
+    reservations_query = (
+        Reservation.objects.select_related("user")
+        .prefetch_related("representation_reservations__representation__show")
+        .order_by("-booking_date", "-id")
+    )
+    if status_filter in Reservation.Status.values:
+        reservations_query = reservations_query.filter(status=status_filter)
+
+    return render(request, "dashboard/reservations.html", {
+        "reservations": reservations_query,
+        "status_filter": status_filter,
+        "statuses": Reservation.Status,
+    })
+
+
+@staff_member_required
+@require_POST
+def update_reservation_status(request, reservation_id):
+    reservation = get_object_or_404(Reservation, id=reservation_id)
+    status = request.POST.get("status", "")
+
+    if status not in Reservation.Status.values:
+        messages.error(request, "Statut invalide.")
+        return redirect("catalogue:dashboard-reservations")
+
+    reservation.status = status
+    reservation.save(update_fields=["status"])
+    messages.success(request, "Statut de la reservation mis a jour.")
+    return redirect("catalogue:dashboard-reservations")
+
+
+@staff_member_required
 @require_POST
 def validate_review(request, review_id):
     review = get_object_or_404(Review, id=review_id, validated=False)

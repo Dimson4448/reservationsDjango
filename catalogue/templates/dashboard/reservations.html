@@ -1,0 +1,88 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Reservations - Ultimate SPT{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <h1>Reservations</h1>
+        <p>Gestion des reservations clients.</p>
+    </div>
+    <div class="actions">
+        <a class="button button-primary" href="{% url 'catalogue:dashboard-reservations-export' %}">Exporter CSV</a>
+        <a class="button" href="{% url 'catalogue:dashboard-index' %}">Retour au tableau de bord</a>
+    </div>
+</section>
+
+<form class="filter-bar compact" method="get">
+    <label>
+        <span>Statut</span>
+        <select name="status">
+            <option value="" {% if not status_filter %}selected{% endif %}>Toutes les reservations</option>
+            <option value="confirmed" {% if status_filter == "confirmed" %}selected{% endif %}>Confirmees</option>
+            <option value="canceled" {% if status_filter == "canceled" %}selected{% endif %}>Annulees</option>
+        </select>
+    </label>
+    <div class="filter-actions">
+        <button class="button button-primary" type="submit">Filtrer</button>
+        <a class="button" href="{% url 'catalogue:dashboard-reservations' %}">Reinitialiser</a>
+    </div>
+</form>
+
+<section class="panel">
+    {% if reservations %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Reference</th>
+                    <th>Client</th>
+                    <th>Spectacle</th>
+                    <th>Total</th>
+                    <th>Statut</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for reservation in reservations %}
+                    <tr>
+                        <td>#{{ reservation.id }}</td>
+                        <td>{{ reservation.user.username }}</td>
+                        <td>
+                            {% for item in reservation.representation_reservations.all %}
+                                {{ item.representation.show.title }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                Aucun detail
+                            {% endfor %}
+                        </td>
+                        <td>{{ reservation.total_amount }} EUR</td>
+                        <td>
+                            <span class="status status-{{ reservation.status }}">
+                                {{ reservation.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if reservation.status == statuses.CONFIRMED %}
+                                <form method="post" action="{% url 'catalogue:dashboard-reservation-status' reservation.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="status" value="canceled">
+                                    <button class="link-button danger" type="submit">Annuler</button>
+                                </form>
+                            {% else %}
+                                <form method="post" action="{% url 'catalogue:dashboard-reservation-status' reservation.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="status" value="confirmed">
+                                    <button class="link-button" type="submit">Reactiver</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>Aucune reservation trouvee.</p>
+    {% endif %}
+</section>
+{% endblock %}

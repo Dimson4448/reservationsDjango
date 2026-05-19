@@ -72,9 +72,9 @@ class RepresentationReservationInline(admin.TabularInline):
 
 @admin.register(Reservation)
 class ReservationAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "booking_date", "status", "reserved_places", "total_amount")
-    list_filter = ("status", "booking_date")
-    search_fields = ("user__username", "user__email")
+    list_display = ("id", "user", "booking_date", "status", "payment_status", "payment_method", "reserved_places", "total_amount")
+    list_filter = ("status", "payment_status", "payment_method", "booking_date")
+    search_fields = ("user__username", "user__email", "payment_reference")
     autocomplete_fields = ("user",)
     list_select_related = ("user",)
     readonly_fields = ("booking_date", "total_amount")

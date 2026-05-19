@@ -15,8 +15,9 @@ Cette release couvre le parcours principal d'un site de reservation de spectacle
 - Liste des artistes avec recherche et pagination.
 - Fiche spectacle avec representations, lieu, tarifs, disponibilite et avis valides.
 - Creation de reservation avec validation de quantite et controle du tarif choisi.
-- Page de confirmation apres reservation.
-- Billet imprimable pour chaque reservation de l'utilisateur.
+- Panier avant paiement avec preparation Stripe Checkout pour carte bancaire, Bancontact et Klarna.
+- Page de confirmation apres paiement.
+- Billet imprimable uniquement apres paiement confirme.
 - Profil utilisateur avec historique, filtre par statut et annulation asynchrone.
 - Avis utilisateur soumis en attente de validation.
 
@@ -73,7 +74,7 @@ Resultat :
 
 - system check OK ;
 - aucune migration manquante ;
-- 65 tests OK.
+- 71 tests OK.
 
 ## Points restants avant fusion vers `main`
 

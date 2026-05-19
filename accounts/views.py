@@ -59,6 +59,7 @@ def profile(request):
         .prefetch_related("representation_reservations__representation__show")
         .order_by("-booking_date")
     )
+    pending_count = reservations_base.filter(status=Reservation.Status.PENDING).count()
     confirmed_count = reservations_base.filter(status=Reservation.Status.CONFIRMED).count()
     canceled_count = reservations_base.filter(status=Reservation.Status.CANCELED).count()
 
@@ -70,9 +71,10 @@ def profile(request):
         "user_language": languages.get(user_meta.langue, user_meta.langue),
         "reservations": reservations,
         "status_filter": status_filter,
+        "pending_count": pending_count,
         "confirmed_count": confirmed_count,
         "canceled_count": canceled_count,
-        "total_reservations": confirmed_count + canceled_count,
+        "total_reservations": pending_count + confirmed_count + canceled_count,
     })
 
 

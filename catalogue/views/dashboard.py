@@ -28,6 +28,10 @@ def index(request):
             {"label": "Reservables", "value": Show.objects.filter(bookable=True).count()},
             {"label": "Representations a venir", "value": Representation.objects.filter(schedule__gte=now).count()},
             {
+                "label": "Reservations a payer",
+                "value": Reservation.objects.filter(status=Reservation.Status.PENDING).count(),
+            },
+            {
                 "label": "Reservations confirmees",
                 "value": Reservation.objects.filter(status=Reservation.Status.CONFIRMED).count(),
             },
@@ -73,6 +77,7 @@ def pending_reviews(request):
 @staff_member_required
 def reservations(request):
     status_filter = request.GET.get("status", "").strip()
+    payment_filter = request.GET.get("payment_status", "").strip()
     reservations_query = (
         Reservation.objects.select_related("user")
         .prefetch_related("representation_reservations__representation__show")
@@ -80,6 +85,8 @@ def reservations(request):
     )
     if status_filter in Reservation.Status.values:
         reservations_query = reservations_query.filter(status=status_filter)
+    if payment_filter in Reservation.PaymentStatus.values:
+        reservations_query = reservations_query.filter(payment_status=payment_filter)
 
     paginator = Paginator(reservations_query, 10)
     page_obj = paginator.get_page(request.GET.get("page"))
@@ -88,8 +95,10 @@ def reservations(request):
         "reservations": page_obj,
         "page_obj": page_obj,
         "status_filter": status_filter,
+        "payment_filter": payment_filter,
         "statuses": Reservation.Status,
-        "pagination_query": f"status={status_filter}",
+        "payment_statuses": Reservation.PaymentStatus,
+        "pagination_query": f"status={status_filter}&payment_status={payment_filter}",
     })
 
 
@@ -104,7 +113,11 @@ def update_reservation_status(request, reservation_id):
         return redirect("catalogue:dashboard-reservations")
 
     reservation.status = status
-    reservation.save(update_fields=["status"])
+    if status == Reservation.Status.CANCELED and reservation.payment_status == Reservation.PaymentStatus.UNPAID:
+        reservation.payment_status = Reservation.PaymentStatus.FAILED
+        reservation.save(update_fields=["status", "payment_status"])
+    else:
+        reservation.save(update_fields=["status"])
     messages.success(request, "Statut de la reservation mis a jour.")
     return redirect("catalogue:dashboard-reservations")
 

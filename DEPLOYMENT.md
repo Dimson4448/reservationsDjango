@@ -9,6 +9,7 @@
    - `DJANGO_ALLOWED_HOSTS`
    - `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`
    - les variables `DJANGO_SECURE_*` si le site est servi en HTTPS
+   - `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY` et `STRIPE_PAYMENT_METHOD_TYPES` pour le paiement
 3. Installer les dependances :
 
 ```powershell
@@ -42,6 +43,7 @@ python manage.py test --noinput
 - tester une fiche spectacle ;
 - tester la connexion ;
 - tester une reservation ;
+- tester le panier et un paiement Stripe en mode test ;
 - tester l'annulation asynchrone d'une reservation ;
 - tester l'admin Django.
 
@@ -52,3 +54,4 @@ python manage.py test --noinput
 - renseigner le domaine reel dans `DJANGO_ALLOWED_HOSTS` ;
 - activer `DJANGO_SECURE_SSL_REDIRECT`, `DJANGO_SESSION_COOKIE_SECURE` et `DJANGO_CSRF_COOKIE_SECURE` en production HTTPS ;
 - sauvegarder regulierement la base avec `mysqldump`.
+- activer et tester les moyens de paiement Stripe voulus : carte, Bancontact et Klarna.

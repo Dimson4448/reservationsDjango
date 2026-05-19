@@ -10,7 +10,9 @@ Cette branche contient la version de travail actuelle avec :
 - liste et fiches artistes ;
 - detail d'un spectacle avec representations, tarifs et avis valides ;
 - formulaire de reservation securise depuis une representation ;
-- page de confirmation et billet imprimable ;
+- panier avant paiement avec Stripe Checkout ;
+- paiement prepare pour carte bancaire, Bancontact et Klarna ;
+- page de confirmation et billet imprimable apres paiement ;
 - profil utilisateur avec historique, filtre par statut et annulation asynchrone ;
 - tableau de bord staff avec statistiques, gestion des reservations, moderation des avis et export CSV ;
 - administration Django personnalisee aux couleurs du site ;
@@ -59,6 +61,27 @@ Un exemple est disponible dans `.env.example`.
 
 Les consignes de deploiement et de verification sont dans `DEPLOYMENT.md`.
 
+## Paiement
+
+Le paiement en ligne est prepare avec Stripe Checkout.
+
+Variables a renseigner dans `.env` :
+
+```text
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_CURRENCY=eur
+STRIPE_PAYMENT_METHOD_TYPES=card,bancontact,klarna
+```
+
+Parcours :
+
+1. Le client reserve une representation.
+2. La reservation est placee dans le panier avec le statut `pending`.
+3. Le client paie via Stripe Checkout.
+4. Apres paiement confirme, la reservation passe en `confirmed` et `paid`.
+5. Le billet devient accessible.
+
 ## Endpoints utiles
 
 - `GET /` : accueil
@@ -69,6 +92,9 @@ Les consignes de deploiement et de verification sont dans `DEPLOYMENT.md`.
 - `GET /catalogue/artist/` : liste des artistes
 - `GET /catalogue/artist/<id>` : detail d'un artiste
 - `GET|POST /catalogue/representation/<id>/reserve` : creation d'une reservation
+- `GET /catalogue/reservation/<id>/cart` : panier avant paiement
+- `POST /catalogue/reservation/<id>/payment` : creation de la session de paiement Stripe
+- `GET /catalogue/reservation/<id>/payment/success` : validation du retour paiement
 - `GET /catalogue/reservation/<id>/confirmation` : confirmation de reservation
 - `GET /catalogue/reservation/<id>/ticket` : billet imprimable
 - `POST /catalogue/reservation/<id>/cancel` : annulation d'une reservation
@@ -93,7 +119,7 @@ Avant de fusionner `api` vers `main`, verifier :
 
 - navigation publique : accueil, a propos, spectacles, artistes ;
 - compte utilisateur : inscription, connexion, profil, changement de mot de passe ;
-- reservation : creation, confirmation, billet imprimable, annulation ;
+- reservation : creation, panier, paiement test, confirmation, billet imprimable, annulation ;
 - staff : tableau de bord, export CSV, moderation des avis, gestion des reservations ;
 - administration Django : affichage, listes, recherche et formulaires ;
 - API : authentification JWT et endpoints principaux ;

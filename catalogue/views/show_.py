@@ -1,10 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from django.db import transaction
 from django.db.models import Min, Prefetch, Q
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
@@ -109,7 +111,8 @@ def reserve(request, representation_id):
         with transaction.atomic():
             reservation = Reservation.objects.create(
                 user=request.user,
-                status=Reservation.Status.CONFIRMED,
+                status=Reservation.Status.PENDING,
+                payment_status=Reservation.PaymentStatus.UNPAID,
             )
             RepresentationReservation.objects.create(
                 representation=representation,
@@ -118,13 +121,124 @@ def reserve(request, representation_id):
                 quantity=quantity,
             )
 
-        messages.success(request, "Reservation confirmee.")
-        return redirect("catalogue:reservation-confirmation", reservation_id=reservation.id)
+        messages.success(request, "Reservation ajoutee au panier. Le billet sera disponible apres paiement.")
+        return redirect("catalogue:reservation-cart", reservation_id=reservation.id)
 
     return render(request, "reservation/create.html", {
         "form": form,
         "representation": representation,
     })
+
+
+@login_required
+def reservation_cart(request, reservation_id):
+    reservation = get_object_or_404(
+        Reservation.objects.prefetch_related(
+            "representation_reservations__representation__show",
+            "representation_reservations__representation__location",
+        ),
+        id=reservation_id,
+        user=request.user,
+    )
+    if reservation.is_paid:
+        return redirect("catalogue:reservation-confirmation", reservation_id=reservation.id)
+
+    return render(request, "reservation/cart.html", {
+        "reservation": reservation,
+        "stripe_configured": bool(settings.STRIPE_SECRET_KEY),
+        "payment_methods": settings.STRIPE_PAYMENT_METHOD_TYPES,
+    })
+
+
+@login_required
+@require_POST
+def start_payment(request, reservation_id):
+    reservation = get_object_or_404(
+        Reservation.objects.prefetch_related("representation_reservations__representation__show"),
+        id=reservation_id,
+        user=request.user,
+        status=Reservation.Status.PENDING,
+        payment_status=Reservation.PaymentStatus.UNPAID,
+    )
+    if not settings.STRIPE_SECRET_KEY:
+        messages.error(request, "Le paiement en ligne n'est pas encore configure.")
+        return redirect("catalogue:reservation-cart", reservation_id=reservation.id)
+
+    try:
+        import stripe
+    except ImportError:
+        messages.error(request, "Le module Stripe n'est pas installe.")
+        return redirect("catalogue:reservation-cart", reservation_id=reservation.id)
+
+    selected_method = request.POST.get("payment_method", "").strip()
+    payment_methods = (
+        [selected_method]
+        if selected_method in settings.STRIPE_PAYMENT_METHOD_TYPES
+        else settings.STRIPE_PAYMENT_METHOD_TYPES
+    )
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+
+    session = stripe.checkout.Session.create(
+        mode="payment",
+        payment_method_types=payment_methods,
+        customer_email=request.user.email or None,
+        line_items=[
+            {
+                "price_data": {
+                    "currency": settings.STRIPE_CURRENCY,
+                    "product_data": {
+                        "name": f"Reservation Ultimate SPT #{reservation.id}",
+                    },
+                    "unit_amount": int(reservation.total_amount * 100),
+                },
+                "quantity": 1,
+            }
+        ],
+        metadata={"reservation_id": reservation.id},
+        success_url=request.build_absolute_uri(
+            reverse("catalogue:reservation-payment-success", args=[reservation.id])
+        ) + "?session_id={CHECKOUT_SESSION_ID}",
+        cancel_url=request.build_absolute_uri(
+            reverse("catalogue:reservation-cart", args=[reservation.id])
+        ),
+    )
+    reservation.payment_reference = session.id
+    reservation.payment_method = ",".join(payment_methods)
+    reservation.save(update_fields=["payment_reference", "payment_method"])
+    return redirect(session.url)
+
+
+@login_required
+def payment_success(request, reservation_id):
+    reservation = get_object_or_404(
+        Reservation,
+        id=reservation_id,
+        user=request.user,
+        status=Reservation.Status.PENDING,
+    )
+    session_id = request.GET.get("session_id", "")
+    if not settings.STRIPE_SECRET_KEY or not session_id:
+        messages.error(request, "Paiement impossible a verifier.")
+        return redirect("catalogue:reservation-cart", reservation_id=reservation.id)
+
+    try:
+        import stripe
+    except ImportError:
+        messages.error(request, "Le module Stripe n'est pas installe.")
+        return redirect("catalogue:reservation-cart", reservation_id=reservation.id)
+
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    session = stripe.checkout.Session.retrieve(session_id)
+    if session.payment_status != "paid":
+        messages.error(request, "Le paiement n'est pas encore confirme.")
+        return redirect("catalogue:reservation-cart", reservation_id=reservation.id)
+
+    reservation.mark_paid(
+        payment_reference=session.id,
+        payment_method=getattr(session, "payment_method_types", ["stripe"])[0],
+    )
+    messages.success(request, "Paiement confirme. Votre billet est disponible.")
+    return redirect("catalogue:reservation-confirmation", reservation_id=reservation.id)
 
 
 @login_required
@@ -137,6 +251,10 @@ def reservation_confirmation(request, reservation_id):
         id=reservation_id,
         user=request.user,
     )
+    if not reservation.is_paid:
+        messages.info(request, "Le paiement est requis avant la confirmation finale.")
+        return redirect("catalogue:reservation-cart", reservation_id=reservation.id)
+
     return render(request, "reservation/confirmation.html", {
         "reservation": reservation,
     })
@@ -151,6 +269,8 @@ def reservation_ticket(request, reservation_id):
         ),
         id=reservation_id,
         user=request.user,
+        status=Reservation.Status.CONFIRMED,
+        payment_status=Reservation.PaymentStatus.PAID,
     )
     return render(request, "reservation/ticket.html", {
         "reservation": reservation,

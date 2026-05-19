@@ -169,6 +169,15 @@ SECURE_HSTS_SECONDS = int(os.getenv("DJANGO_SECURE_HSTS_SECONDS", "0"))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", False)
 SECURE_HSTS_PRELOAD = env_bool("DJANGO_SECURE_HSTS_PRELOAD", False)
 
+# Stripe Checkout payment settings
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
+STRIPE_CURRENCY = os.getenv("STRIPE_CURRENCY", "eur")
+STRIPE_PAYMENT_METHOD_TYPES = env_list(
+    "STRIPE_PAYMENT_METHOD_TYPES",
+    ["card", "bancontact", "klarna"],
+)
+
 # REST Framework authentications & permissions
 # https://www.django-rest-framework.org/api-guide/authentication/
 REST_FRAMEWORK = {

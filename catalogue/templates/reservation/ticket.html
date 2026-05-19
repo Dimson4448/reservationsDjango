@@ -28,6 +28,10 @@
                 <strong>{{ reservation.get_status_display }}</strong>
             </div>
             <div>
+                <span>Paiement</span>
+                <strong>{{ reservation.get_payment_status_display }}</strong>
+            </div>
+            <div>
                 <span>Total</span>
                 <strong>{{ reservation.total_amount }} EUR</strong>
             </div>

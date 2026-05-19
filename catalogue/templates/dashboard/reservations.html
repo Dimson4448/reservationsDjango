@@ -14,13 +14,23 @@
     </div>
 </section>
 
-<form class="filter-bar compact" method="get">
+<form class="filter-bar" method="get">
     <label>
         <span>Statut</span>
         <select name="status">
             <option value="" {% if not status_filter %}selected{% endif %}>Toutes les reservations</option>
+            <option value="pending" {% if status_filter == "pending" %}selected{% endif %}>A payer</option>
             <option value="confirmed" {% if status_filter == "confirmed" %}selected{% endif %}>Confirmees</option>
             <option value="canceled" {% if status_filter == "canceled" %}selected{% endif %}>Annulees</option>
+        </select>
+    </label>
+    <label>
+        <span>Paiement</span>
+        <select name="payment_status">
+            <option value="" {% if not payment_filter %}selected{% endif %}>Tous les paiements</option>
+            <option value="unpaid" {% if payment_filter == "unpaid" %}selected{% endif %}>Non payes</option>
+            <option value="paid" {% if payment_filter == "paid" %}selected{% endif %}>Payes</option>
+            <option value="failed" {% if payment_filter == "failed" %}selected{% endif %}>Echoues</option>
         </select>
     </label>
     <div class="filter-actions">
@@ -40,6 +50,7 @@
                     <th>Spectacle</th>
                     <th>Total</th>
                     <th>Statut</th>
+                    <th>Paiement</th>
                     <th>Action</th>
                 </tr>
                 </thead>
@@ -61,8 +72,9 @@
                                 {{ reservation.get_status_display }}
                             </span>
                         </td>
+                        <td>{{ reservation.get_payment_status_display }}</td>
                         <td>
-                            {% if reservation.status == statuses.CONFIRMED %}
+                            {% if reservation.status != statuses.CANCELED %}
                                 <form method="post" action="{% url 'catalogue:dashboard-reservation-status' reservation.id %}">
                                     {% csrf_token %}
                                     <input type="hidden" name="status" value="canceled">

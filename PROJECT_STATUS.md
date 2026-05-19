@@ -10,7 +10,8 @@ Derniere mise a jour : 19 mai 2026.
 - Catalogue des artistes avec recherche et pagination.
 - Fiche spectacle avec representations, tarifs, disponibilite et avis valides.
 - Reservation utilisateur avec validation de quantite et controle des tarifs.
-- Confirmation de reservation et billet imprimable.
+- Panier avant paiement avec integration Stripe Checkout preparee pour carte, Bancontact et Klarna.
+- Confirmation de reservation et billet imprimable uniquement apres paiement confirme.
 - Profil utilisateur avec historique, filtre par statut et annulation asynchrone.
 - API REST avec JWT pour les principales ressources.
 - Tableau de bord staff avec statistiques.
@@ -25,6 +26,7 @@ Derniere mise a jour : 19 mai 2026.
 ## Points a verifier manuellement
 
 - Tester une reservation complete avec un compte utilisateur.
+- Tester le panier et un paiement Stripe en mode test.
 - Tester l'impression du billet.
 - Tester la validation d'un avis avec un compte staff.
 - Tester l'export CSV depuis le tableau de bord staff.

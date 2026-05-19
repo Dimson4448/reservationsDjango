@@ -24,6 +24,10 @@
             <strong>{{ confirmed_count }}</strong>
         </div>
         <div>
+            <span>A payer</span>
+            <strong>{{ pending_count }}</strong>
+        </div>
+        <div>
             <span>Annulees</span>
             <strong>{{ canceled_count }}</strong>
         </div>
@@ -33,6 +37,7 @@
             <span>Statut</span>
             <select name="status">
                 <option value="" {% if not status_filter %}selected{% endif %}>Toutes les reservations</option>
+                <option value="pending" {% if status_filter == "pending" %}selected{% endif %}>A payer</option>
                 <option value="confirmed" {% if status_filter == "confirmed" %}selected{% endif %}>Confirmees</option>
                 <option value="canceled" {% if status_filter == "canceled" %}selected{% endif %}>Annulees</option>
             </select>
@@ -66,7 +71,11 @@
                         <td>{{ item.line_total }} EUR</td>
                         <td><span data-reservation-status="{{ reservation.id }}" class="status status-{{ reservation.status }}">{{ reservation.get_status_display }}</span></td>
                         <td data-reservation-action="{{ reservation.id }}">
-                            <a class="link-button" href="{% url 'catalogue:reservation-ticket' reservation.id %}">Billet</a>
+                            {% if reservation.is_paid %}
+                                <a class="link-button" href="{% url 'catalogue:reservation-ticket' reservation.id %}">Billet</a>
+                            {% elif reservation.status == "pending" %}
+                                <a class="link-button" href="{% url 'catalogue:reservation-cart' reservation.id %}">Payer</a>
+                            {% endif %}
                             {% if reservation.is_cancelable %}
                                 <form class="js-cancel-reservation" method="post" action="{% url 'catalogue:reservation-cancel' reservation.id %}">
                                     {% csrf_token %}
@@ -82,7 +91,15 @@
                         <td>#{{ reservation.id }}</td>
                         <td colspan="4">Aucun detail</td>
                         <td><span class="status status-{{ reservation.status }}">{{ reservation.get_status_display }}</span></td>
-                        <td><a class="link-button" href="{% url 'catalogue:reservation-ticket' reservation.id %}">Billet</a></td>
+                        <td>
+                            {% if reservation.is_paid %}
+                                <a class="link-button" href="{% url 'catalogue:reservation-ticket' reservation.id %}">Billet</a>
+                            {% elif reservation.status == "pending" %}
+                                <a class="link-button" href="{% url 'catalogue:reservation-cart' reservation.id %}">Payer</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             {% empty %}

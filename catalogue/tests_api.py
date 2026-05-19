@@ -114,8 +114,11 @@ class CatalogueAPITests(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["status"], Reservation.Status.CONFIRMED)
+        self.assertEqual(response.data["status"], Reservation.Status.PENDING)
+        self.assertEqual(response.data["payment_status"], Reservation.PaymentStatus.UNPAID)
         self.assertEqual(response.data["items"][0]["quantity"], 3)
+        self.assertIn("/catalogue/reservation/", response.data["cart_url"])
+        self.assertTrue(response.data["cart_url"].endswith("/cart"))
         self.assertIn("/catalogue/reservation/", response.data["confirmation_url"])
         self.assertTrue(response.data["confirmation_url"].endswith("/confirmation"))
 

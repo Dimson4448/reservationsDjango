@@ -41,6 +41,18 @@ class CatalogueRoutingTests(SimpleTestCase):
         url = reverse("catalogue:reservation-confirmation", args=[1])
         self.assertEqual(resolve(url).func, show_.reservation_confirmation)
 
+    def test_reservation_cart_route_is_registered(self):
+        url = reverse("catalogue:reservation-cart", args=[1])
+        self.assertEqual(resolve(url).func, show_.reservation_cart)
+
+    def test_reservation_payment_start_route_is_registered(self):
+        url = reverse("catalogue:reservation-payment-start", args=[1])
+        self.assertEqual(resolve(url).func, show_.start_payment)
+
+    def test_reservation_payment_success_route_is_registered(self):
+        url = reverse("catalogue:reservation-payment-success", args=[1])
+        self.assertEqual(resolve(url).func, show_.payment_success)
+
     def test_reservation_ticket_route_is_registered(self):
         url = reverse("catalogue:reservation-ticket", args=[1])
         self.assertEqual(resolve(url).func, show_.reservation_ticket)
@@ -99,6 +111,7 @@ class CatalogueTemplateTests(SimpleTestCase):
             "show/index.html",
             "show/show.html",
             "reservation/create.html",
+            "reservation/cart.html",
             "reservation/confirmation.html",
             "reservation/ticket.html",
             "dashboard/index.html",
@@ -432,12 +445,50 @@ class ReservationFlowTests(TestCase):
         reservation = Reservation.objects.get(user=self.user)
         self.assertRedirects(
             response,
-            reverse("catalogue:reservation-confirmation", args=[reservation.id]),
+            reverse("catalogue:reservation-cart", args=[reservation.id]),
         )
-        self.assertEqual(reservation.status, Reservation.Status.CONFIRMED)
+        self.assertEqual(reservation.status, Reservation.Status.PENDING)
+        self.assertEqual(reservation.payment_status, Reservation.PaymentStatus.UNPAID)
         item = reservation.representation_reservations.get()
         self.assertEqual(item.quantity, 2)
         self.assertEqual(item.line_total, self.price.price * 2)
+
+    def test_pending_reservation_displays_cart_before_payment(self):
+        reservation = Reservation.objects.create(
+            user=self.user,
+            status=Reservation.Status.PENDING,
+            payment_status=Reservation.PaymentStatus.UNPAID,
+        )
+        RepresentationReservation.objects.create(
+            reservation=reservation,
+            representation=self.representation,
+            price=self.price.price,
+            quantity=1,
+        )
+        self.client.login(username="client", password="pass12345")
+
+        response = self.client.get(reverse("catalogue:reservation-cart", args=[reservation.id]))
+
+        self.assertContains(response, "Votre panier")
+        self.assertContains(response, "Le billet sera disponible uniquement apres paiement.")
+
+    def test_unpaid_reservation_redirects_confirmation_to_cart(self):
+        reservation = Reservation.objects.create(
+            user=self.user,
+            status=Reservation.Status.PENDING,
+            payment_status=Reservation.PaymentStatus.UNPAID,
+        )
+        RepresentationReservation.objects.create(
+            reservation=reservation,
+            representation=self.representation,
+            price=self.price.price,
+            quantity=1,
+        )
+        self.client.login(username="client", password="pass12345")
+
+        response = self.client.get(reverse("catalogue:reservation-confirmation", args=[reservation.id]))
+
+        self.assertRedirects(response, reverse("catalogue:reservation-cart", args=[reservation.id]))
 
     def test_reservation_rejects_zero_quantity(self):
         self.client.login(username="client", password="pass12345")
@@ -503,7 +554,11 @@ class ReservationFlowTests(TestCase):
         self.assertFalse(Reservation.objects.filter(user=self.user).exists())
 
     def test_authenticated_user_can_view_own_reservation_confirmation(self):
-        reservation = Reservation.objects.create(user=self.user)
+        reservation = Reservation.objects.create(
+            user=self.user,
+            status=Reservation.Status.CONFIRMED,
+            payment_status=Reservation.PaymentStatus.PAID,
+        )
         RepresentationReservation.objects.create(
             reservation=reservation,
             representation=self.representation,
@@ -518,7 +573,11 @@ class ReservationFlowTests(TestCase):
         self.assertContains(response, self.show.title)
 
     def test_authenticated_user_can_view_own_reservation_ticket(self):
-        reservation = Reservation.objects.create(user=self.user)
+        reservation = Reservation.objects.create(
+            user=self.user,
+            status=Reservation.Status.CONFIRMED,
+            payment_status=Reservation.PaymentStatus.PAID,
+        )
         RepresentationReservation.objects.create(
             reservation=reservation,
             representation=self.representation,

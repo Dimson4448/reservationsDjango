@@ -6,4 +6,5 @@ mysqlclient==2.2.7
 PyJWT==2.10.1
 python-dotenv==1.2.1
 sqlparse==0.5.3
+stripe==14.4.1
 tzdata==2025.2

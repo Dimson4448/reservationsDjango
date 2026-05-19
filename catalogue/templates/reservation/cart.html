@@ -1,23 +1,24 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %}Reservation confirmee{% endblock %}
+{% block title %}Panier{% endblock %}
 
 {% block content %}
 <section class="page-header">
     <div>
-        <p class="eyebrow">Reservation confirmee</p>
-        <h1>Merci, votre reservation est enregistree.</h1>
-        <p>Reference #{{ reservation.id }}</p>
+        <p class="eyebrow">Panier</p>
+        <h1>Finalisez votre reservation.</h1>
+        <p>Le billet sera disponible uniquement apres paiement.</p>
     </div>
-    <div class="actions">
-        <a class="button button-primary" href="{% url 'catalogue:reservation-ticket' reservation.id %}">Voir le billet</a>
-        <a class="button" href="{% url 'accounts:user-profile' %}">Voir mes reservations</a>
-    </div>
+    <a class="button" href="{% url 'accounts:user-profile' %}">Retour au profil</a>
 </section>
 
 <section class="panel">
-    <h2>Recapitulatif</h2>
+    <h2>Votre panier</h2>
     <div class="summary-box profile-summary">
+        <div>
+            <span>Reference</span>
+            <strong>#{{ reservation.id }}</strong>
+        </div>
         <div>
             <span>Statut</span>
             <strong>{{ reservation.get_status_display }}</strong>
@@ -29,10 +30,6 @@
         <div>
             <span>Total</span>
             <strong>{{ reservation.total_amount }} EUR</strong>
-        </div>
-        <div>
-            <span>Date de reservation</span>
-            <strong>{{ reservation.booking_date|date:"d/m/Y H:i" }}</strong>
         </div>
     </div>
 
@@ -62,9 +59,29 @@
     </div>
 </section>
 
-<nav class="actions">
-    <a class="button button-primary" href="{% url 'catalogue:show-index' %}">Continuer a parcourir</a>
-    <a class="button" href="{% url 'catalogue:reservation-ticket' reservation.id %}">Voir le billet</a>
-    <a class="button" href="{% url 'accounts:user-profile' %}">Retour au profil</a>
-</nav>
+<section class="panel">
+    <h2>Paiement en ligne</h2>
+    {% if stripe_configured %}
+        <form method="post" action="{% url 'catalogue:reservation-payment-start' reservation.id %}">
+            {% csrf_token %}
+            <div class="payment-methods">
+                <label>
+                    <input type="radio" name="payment_method" value="card" checked>
+                    Carte bancaire
+                </label>
+                <label>
+                    <input type="radio" name="payment_method" value="bancontact">
+                    Bancontact
+                </label>
+                <label>
+                    <input type="radio" name="payment_method" value="klarna">
+                    Klarna
+                </label>
+            </div>
+            <button class="button button-primary" type="submit">Payer maintenant</button>
+        </form>
+    {% else %}
+        <p>Le paiement Stripe doit etre configure avec les cles de paiement avant utilisation.</p>
+    {% endif %}
+</section>
 {% endblock %}

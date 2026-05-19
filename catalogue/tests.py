@@ -498,6 +498,42 @@ class ReservationFlowTests(TestCase):
         self.assertNotContains(response, "Bancontact")
         self.assertNotContains(response, "Klarna")
 
+    def test_start_payment_redirects_paid_reservation_to_confirmation(self):
+        reservation = Reservation.objects.create(
+            user=self.user,
+            status=Reservation.Status.CONFIRMED,
+            payment_status=Reservation.PaymentStatus.PAID,
+        )
+        RepresentationReservation.objects.create(
+            reservation=reservation,
+            representation=self.representation,
+            price=self.price.price,
+            quantity=1,
+        )
+        self.client.login(username="client", password="pass12345")
+
+        response = self.client.post(reverse("catalogue:reservation-payment-start", args=[reservation.id]))
+
+        self.assertRedirects(response, reverse("catalogue:reservation-confirmation", args=[reservation.id]))
+
+    def test_start_payment_rejects_canceled_reservation(self):
+        reservation = Reservation.objects.create(
+            user=self.user,
+            status=Reservation.Status.CANCELED,
+            payment_status=Reservation.PaymentStatus.FAILED,
+        )
+        RepresentationReservation.objects.create(
+            reservation=reservation,
+            representation=self.representation,
+            price=self.price.price,
+            quantity=1,
+        )
+        self.client.login(username="client", password="pass12345")
+
+        response = self.client.post(reverse("catalogue:reservation-payment-start", args=[reservation.id]))
+
+        self.assertRedirects(response, reverse("accounts:user-profile"))
+
     def test_unpaid_reservation_redirects_confirmation_to_cart(self):
         reservation = Reservation.objects.create(
             user=self.user,

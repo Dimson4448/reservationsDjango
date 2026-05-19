@@ -176,9 +176,19 @@ def start_payment(request, reservation_id):
         Reservation.objects.prefetch_related("representation_reservations__representation__show"),
         id=reservation_id,
         user=request.user,
-        status=Reservation.Status.PENDING,
-        payment_status=Reservation.PaymentStatus.UNPAID,
     )
+    if reservation.is_paid:
+        messages.info(request, "Cette reservation est deja payee.")
+        return redirect("catalogue:reservation-confirmation", reservation_id=reservation.id)
+
+    if reservation.status == Reservation.Status.CANCELED:
+        messages.error(request, "Impossible de payer une reservation annulee.")
+        return redirect("accounts:user-profile")
+
+    if reservation.status != Reservation.Status.PENDING or reservation.payment_status != Reservation.PaymentStatus.UNPAID:
+        messages.error(request, "Cette reservation ne peut pas etre payee.")
+        return redirect("catalogue:reservation-cart", reservation_id=reservation.id)
+
     if not settings.STRIPE_SECRET_KEY:
         messages.error(request, "Le paiement en ligne n'est pas encore configure.")
         return redirect("catalogue:reservation-cart", reservation_id=reservation.id)

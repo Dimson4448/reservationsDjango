@@ -1,10 +1,11 @@
 from datetime import timedelta
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.template.loader import get_template
-from django.test import SimpleTestCase, TestCase
+from django.test import SimpleTestCase, TestCase, override_settings
 from django.utils import timezone
 from django.urls import reverse, resolve
 
@@ -52,6 +53,10 @@ class CatalogueRoutingTests(SimpleTestCase):
     def test_reservation_payment_success_route_is_registered(self):
         url = reverse("catalogue:reservation-payment-success", args=[1])
         self.assertEqual(resolve(url).func, show_.payment_success)
+
+    def test_stripe_webhook_route_is_registered(self):
+        url = reverse("catalogue:stripe-webhook")
+        self.assertEqual(resolve(url).func, show_.stripe_webhook)
 
     def test_reservation_ticket_route_is_registered(self):
         url = reverse("catalogue:reservation-ticket", args=[1])
@@ -489,6 +494,57 @@ class ReservationFlowTests(TestCase):
         response = self.client.get(reverse("catalogue:reservation-confirmation", args=[reservation.id]))
 
         self.assertRedirects(response, reverse("catalogue:reservation-cart", args=[reservation.id]))
+
+    @override_settings(STRIPE_WEBHOOK_SECRET="whsec_test")
+    @patch("stripe.Webhook.construct_event")
+    def test_stripe_webhook_marks_reservation_paid(self, construct_event):
+        reservation = Reservation.objects.create(
+            user=self.user,
+            status=Reservation.Status.PENDING,
+            payment_status=Reservation.PaymentStatus.UNPAID,
+        )
+        RepresentationReservation.objects.create(
+            reservation=reservation,
+            representation=self.representation,
+            price=self.price.price,
+            quantity=1,
+        )
+        construct_event.return_value = {
+            "type": "checkout.session.completed",
+            "data": {
+                "object": {
+                    "id": "cs_test_123",
+                    "payment_status": "paid",
+                    "payment_method_types": ["bancontact"],
+                    "metadata": {"reservation_id": str(reservation.id)},
+                },
+            },
+        }
+
+        response = self.client.post(
+            reverse("catalogue:stripe-webhook"),
+            data=b"{}",
+            content_type="application/json",
+            HTTP_STRIPE_SIGNATURE="test-signature",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        reservation.refresh_from_db()
+        self.assertEqual(reservation.status, Reservation.Status.CONFIRMED)
+        self.assertEqual(reservation.payment_status, Reservation.PaymentStatus.PAID)
+        self.assertEqual(reservation.payment_reference, "cs_test_123")
+        self.assertEqual(reservation.payment_method, "bancontact")
+
+    @override_settings(STRIPE_WEBHOOK_SECRET="")
+    def test_stripe_webhook_requires_configuration(self):
+        response = self.client.post(
+            reverse("catalogue:stripe-webhook"),
+            data=b"{}",
+            content_type="application/json",
+            HTTP_STRIPE_SIGNATURE="test-signature",
+        )
+
+        self.assertEqual(response.status_code, 503)
 
     def test_reservation_rejects_zero_quantity(self):
         self.client.login(username="client", password="pass12345")

@@ -70,6 +70,7 @@ Variables a renseigner dans `.env` :
 ```text
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
 STRIPE_CURRENCY=eur
 STRIPE_PAYMENT_METHOD_TYPES=card,bancontact,klarna
 ```
@@ -79,7 +80,7 @@ Parcours :
 1. Le client reserve une representation.
 2. La reservation est placee dans le panier avec le statut `pending`.
 3. Le client paie via Stripe Checkout.
-4. Apres paiement confirme, la reservation passe en `confirmed` et `paid`.
+4. Apres paiement confirme par retour Checkout ou webhook Stripe, la reservation passe en `confirmed` et `paid`.
 5. Le billet devient accessible.
 
 ## Endpoints utiles

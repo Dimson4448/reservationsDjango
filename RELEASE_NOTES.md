@@ -16,6 +16,7 @@ Cette release couvre le parcours principal d'un site de reservation de spectacle
 - Fiche spectacle avec representations, lieu, tarifs, disponibilite et avis valides.
 - Creation de reservation avec validation de quantite et controle du tarif choisi.
 - Panier avant paiement avec preparation Stripe Checkout pour carte bancaire, Bancontact et Klarna.
+- Webhook Stripe pour confirmer le paiement meme si l'utilisateur ne revient pas correctement sur le site.
 - Page de confirmation apres paiement.
 - Billet imprimable uniquement apres paiement confirme.
 - Profil utilisateur avec historique, filtre par statut et annulation asynchrone.

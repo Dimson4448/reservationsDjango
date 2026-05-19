@@ -45,6 +45,7 @@ urlpatterns = [
     path('reservation/<int:reservation_id>/cart', views.show_.reservation_cart, name='reservation-cart'),
     path('reservation/<int:reservation_id>/payment', views.show_.start_payment, name='reservation-payment-start'),
     path('reservation/<int:reservation_id>/payment/success', views.show_.payment_success, name='reservation-payment-success'),
+    path('payment/stripe/webhook/', views.show_.stripe_webhook, name='stripe-webhook'),
     path('reservation/<int:reservation_id>/confirmation', views.show_.reservation_confirmation, name='reservation-confirmation'),
     path('reservation/<int:reservation_id>/ticket', views.show_.reservation_ticket, name='reservation-ticket'),
     path('reservation/<int:reservation_id>/cancel', views.show_.cancel_reservation, name='reservation-cancel'),

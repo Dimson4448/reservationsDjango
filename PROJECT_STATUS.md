@@ -11,6 +11,7 @@ Derniere mise a jour : 19 mai 2026.
 - Fiche spectacle avec representations, tarifs, disponibilite et avis valides.
 - Reservation utilisateur avec validation de quantite et controle des tarifs.
 - Panier avant paiement avec integration Stripe Checkout preparee pour carte, Bancontact et Klarna.
+- Webhook Stripe pour confirmer les paiements cote serveur.
 - Confirmation de reservation et billet imprimable uniquement apres paiement confirme.
 - Profil utilisateur avec historique, filtre par statut et annulation asynchrone.
 - API REST avec JWT pour les principales ressources.
@@ -27,6 +28,7 @@ Derniere mise a jour : 19 mai 2026.
 
 - Tester une reservation complete avec un compte utilisateur.
 - Tester le panier et un paiement Stripe en mode test.
+- Tester le webhook Stripe avec la CLI Stripe ou le tableau de bord Stripe.
 - Tester l'impression du billet.
 - Tester la validation d'un avis avec un compte staff.
 - Tester l'export CSV depuis le tableau de bord staff.

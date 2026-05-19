@@ -3,15 +3,22 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Min, Prefetch, Q
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from catalogue.forms import ReservationForm, ReviewForm
 from catalogue.models import Representation, RepresentationReservation, Reservation, Show
+
+
+def _session_value(session, key, default=None):
+    if isinstance(session, dict):
+        return session.get(key, default)
+    return getattr(session, key, default)
 
 
 def index(request):
@@ -239,6 +246,48 @@ def payment_success(request, reservation_id):
     )
     messages.success(request, "Paiement confirme. Votre billet est disponible.")
     return redirect("catalogue:reservation-confirmation", reservation_id=reservation.id)
+
+
+@csrf_exempt
+@require_POST
+def stripe_webhook(request):
+    if not settings.STRIPE_WEBHOOK_SECRET:
+        return HttpResponse("Stripe webhook non configure.", status=503)
+
+    try:
+        import stripe
+    except ImportError:
+        return HttpResponse("Stripe non installe.", status=503)
+
+    payload = request.body
+    signature = request.META.get("HTTP_STRIPE_SIGNATURE", "")
+    try:
+        event = stripe.Webhook.construct_event(
+            payload,
+            signature,
+            settings.STRIPE_WEBHOOK_SECRET,
+        )
+    except (ValueError, stripe.error.SignatureVerificationError):
+        return HttpResponse(status=400)
+
+    if event.get("type") == "checkout.session.completed":
+        session = event["data"]["object"]
+        metadata = _session_value(session, "metadata", {}) or {}
+        reservation_id = metadata.get("reservation_id")
+        payment_status = _session_value(session, "payment_status")
+        if reservation_id and payment_status == "paid":
+            reservation = Reservation.objects.filter(
+                id=reservation_id,
+                status=Reservation.Status.PENDING,
+            ).first()
+            if reservation:
+                payment_methods = _session_value(session, "payment_method_types", ["stripe"])
+                reservation.mark_paid(
+                    payment_reference=_session_value(session, "id", ""),
+                    payment_method=payment_methods[0] if payment_methods else "stripe",
+                )
+
+    return JsonResponse({"received": True})
 
 
 @login_required

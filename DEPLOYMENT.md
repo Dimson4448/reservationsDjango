@@ -9,7 +9,7 @@
    - `DJANGO_ALLOWED_HOSTS`
    - `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`
    - les variables `DJANGO_SECURE_*` si le site est servi en HTTPS
-   - `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY` et `STRIPE_PAYMENT_METHOD_TYPES` pour le paiement
+   - `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` et `STRIPE_PAYMENT_METHOD_TYPES` pour le paiement
 3. Installer les dependances :
 
 ```powershell
@@ -44,6 +44,7 @@ python manage.py test --noinput
 - tester la connexion ;
 - tester une reservation ;
 - tester le panier et un paiement Stripe en mode test ;
+- tester le webhook Stripe sur `/catalogue/payment/stripe/webhook/` ;
 - tester l'annulation asynchrone d'une reservation ;
 - tester l'admin Django.
 
